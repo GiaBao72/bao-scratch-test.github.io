@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymleaf.org"
+	th:replace="~{/index::dynamic(~{::main})}">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<main class="container-fluid h-100">
+		<div class="row h-100 border-3 border-info border-start border-end">
+			<div class="mt-5"></div>
+
+			<div class="m-auto col-lg-6 p-lg-1">
+				<h3 class="text-uppercase text-center fw-bolder">Đăng xuất khoản</h3>
+				<p class="fs-1 text-center">Xác nhận đăng xuất tài khoản?</p>
+				<form action="/security/logout" method="post" class="fs-3 p-3">
+					<input type="hidden" name="credential" th:value="${credential}">
+					<div class="mt-3 fs-6 text-center">
+						<a class="m-1 btn btn-outline-secondary" href="/rrs"> <i
+							class="fa-solid fa-arrow-rotate-left"></i>&nbsp;Trang chủ
+						</a>
+						<button class="m-1 btn btn-outline-danger">
+							<i class="fa-solid fa-right-from-bracket"></i>&nbsp;Đăng xuất
+						</button>
+					</div>
+				</form>
+			</div>
+			<div class="mt-lg-5"></div>
+		</div>
+	</main>
+</body>
+</html>

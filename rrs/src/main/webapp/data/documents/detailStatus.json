@@ -1,0 +1,15 @@
+[
+	{
+        "id": 1,
+        "name": "Chờ giao hàng"
+    },{
+        "id": 2,
+        "name": "Đang giao hàng"
+    },{
+        "id": 3,
+        "name": "Hàng đã giao"
+    },{
+        "id": 4,
+        "name": "Hàng đã hủy"
+    }
+]

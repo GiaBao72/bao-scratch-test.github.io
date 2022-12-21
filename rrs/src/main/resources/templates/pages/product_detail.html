@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymleaf.org" th:replace="~{/index::dynamic(~{::main})}">
+<head>
+<meta charset="UTF-8">
+<title>QUẢN LÝ TÀI KHOẢN</title>
+</head>
+<body>
+	<!-- CONTENTS -->
+	<main class="container-fluid" ng-app="app" ng-controller="control">
+		<div class="row justify-content-between align-items-center mb-3">
+			<div class="col-lg-8">
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb m-0">
+						<li class="breadcrumb-item"><a href="/rrs">Trang chủ</a></li>
+						<li class="breadcrumb-item active" aria-current="page">Xem chi tiết</li>
+					</ol>
+				</nav>
+			</div>
+			<div class="col text-end">
+				{{setTitle(order.order_details,'cartTitle')}}
+				<button id="cartTitle" class="ms-auto text-nowrap button-85 r25 text-primary p-0 fs-3 bg-transparent"
+					data-bs-toggle="modal" data-bs-target="#checkOut" th:if="${#request.remoteUser}">
+					<span class="ps-2 pe-2 r25" style="background: #ffffffbf;">
+						{{order.order_details.length}}<i
+						class="fa-cart-shopping fa-solid"></i>
+					</span>
+				</button>
+				<!-- Modal -->
+				<div class="modal fade" id="checkOut" tabindex="-1"
+					aria-labelledby="checkOutLabel" aria-hidden="true">
+					<div class="modal-dialog" style="width: 79%;">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h1 class="modal-title fs-5" id="checkOutLabel">
+									Thêm <b>{{order.order_details.length}}</b> món vào đơn hàng
+								</h1>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="Close"></button>
+							</div>
+							<div class="modal-body text-start" ng-if="order.order_details">
+								<div class="form w-100">
+									<div class="group mb-3">
+										<textarea class="scroll-x" rows="1" required
+											style="text-align: justify;" ng-model="order.address"
+											ng-change="updateOrder_detail(order)"></textarea>
+										<span class="highlight"></span> <span class="bar"></span> <label>Địa
+											chỉ nhận hàng</label>
+									</div>
+								</div>
+								<div class="position-relative"
+									ng-repeat="x in order.order_details">
+									<div class="badge-cus position-absolute fs-3"
+										style="z-index: 10; transform: rotate(-25deg);"
+										ng-if="x.proPrice">
+										<div class="badge__label text-warning">Giảm&nbsp;{{x.proPrice}}%</div>
+									</div>
+									<table
+										class="mt-3 table-bordered border-info border-1 w-100 text-center text-nowrap">
+										<tr>
+											<td class="w-25" rowspan="4"><img class="w-100 fit-min"
+												ng-src="{{getImage(x.images.length?x.images[0]:'default.png')}}">
+											</td>
+											<th class="w-25">Mã sản phẩm</th>
+											<th class="text-center position-static" colspan="2">
+												Tên sản phẩm
+												<button
+													class="button-49 position-absolute end-0 top-0 fw-bold"
+													ng-click="deleteOrder_detail(x)"
+													style="margin: 0 !important; background: linear-gradient(90deg, transparent 10%, #ff010175 39%); box-shadow: 6px 0px 0px #00e6f6;">
+													Xóa</button>
+											</th>
+										</tr>
+										<tr>
+											<td>{{x.id}}</td>
+											<td class="text-center" colspan="2">{{x.name}}</td>
+										</tr>
+										<tr>
+											<th>Giá mua</th>
+											<th class="w-25">Số lượng</th>
+											<th class="w-25">Tổng</th>
+										</tr>
+										<tr>
+											<td>{{x.cosPrice|number}}</td>
+											<td><input class="text-center form-control"
+												type="number" ng-model="x.quantity" min="1" max="100"
+												ng-change="updateOrder_detail(order)"></td>
+											<td class="text-danger">{{((x.proPrice ?
+												x.cosPrice-x.cosPrice*x.proPrice/100
+												:x.cosPrice)*x.quantity) | number}}</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+							<div class="modal-body text-start"
+								ng-if="!order.order_details || !order.order_details.length">
+								<h3 class="text-center">Chưa có món nào 😥</h3>
+							</div>
+							<div class="modal-footer">
+								<span class="me-5"><b>Tổng</b>:&nbsp;{{order.order_details|sum|number}}</span>
+								<button type="button" class="button-49" data-bs-dismiss="modal"
+									style="background: linear-gradient(90deg, transparent 3%, #585858 39%); box-shadow: 6px 0px 0px #01e1ff;">Hủy</button>
+								<button type="button" class="button-49" data-bs-dismiss="modal"
+									ng-if="!order.order_details">Tìm thêm</button>
+								<button type="button" class="button-49" data-bs-dismiss="modal"
+									ng-click="createOrder()" ng-if="order.order_details">Xác
+									nhận</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row border">
+			<div class="col-lg-8">
+				<div class="d-flex flex-wrap align-content-between">
+					<div ng-if="entity.images.length > 0" class="m-auto mt-1 w-100">
+						<!-- carousel images -->
+						<div id="contentImage" class="carousel slide rounded-3 flex-fill"
+							data-bs-ride="true">
+							<div class="carousel-inner">
+								<div class="carousel-item {{i==0 ? 'active' : ''}} ar16x9" ng-repeat="(i,image) in entity.images">
+									<img ng-src="{{getImage(image)}}" class="fit-img rounded-3 o-fit-cover" id="showImage" alt="{{image}}">
+									<div class="border text-center">
+										<label class="w-100 text-muted text-nowrap overflow-hidden" style="text-overflow: ellipsis;">{{image ? image : 'default image'}}</label>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="w-100 border text-nowrap overflow-auto scroll-x"
+							ng-if="entity.images.length > 1">
+							<button type="button" data-bs-target="#contentImage"
+								data-bs-slide-to="{{i}}"
+								class="btn size-5 p-1 ar16x9 {{e.active}}"
+								ng-repeat="(i,image) in entity.images">
+								<img class="fit-img o-fit-cover" ng-src="{{getImage(image)}}"
+									alt="{{image}}">
+							</button>
+						</div>
+					</div>
+					<div class="w-100 ar4x3" ng-if="1 > entity.images.length">
+						<img class="fit-img" style="object-fit: contain;"
+							ng-src="{{getImage('default.png')}}" alt="default.png"
+							title="Nội dung này chưa có ảnh">
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-4 text-lg-end" id="detailProduct">
+				<h3 class="text-break text-center text-lg-start"vstyle="text-align: justify;">{{entity.name}}</h3>
+				<p class="mt-3 fs-5"vstyle="-webkit-text-stroke: thin; text-align: justify;">
+					{{entity.descript}}</p>
+				<div class="d-inline fs-5">
+					<b><i class="fa-light fa-dollar-sign"></i>Giá:</b> <u>{{entity.cosPrice | number:0}}</u>
+				</div>
+				<div class="ms-3 d-inline fs-5" ng-if="entity.proPrice > 0">
+					<b>Giảm giá:</b> <span class="badge bg-warning">
+						{{entity.proPrice}}% <i class="fa-solid fa-tag"></i>
+					</span>
+				</div>
+				<div class="ms-3 fs-5"
+					ng-if="fil.$category = hasAny('id', entity.category.id, categories)">
+					<b>Đồng loại:</b> <a class="badge bg-secondary text-light"
+						href="#cateProduct"
+						ng-click="fil1.$cate.id=entity.category.id;fil1.page=0"> <i
+						class="fa fa-hashtag"></i> {{fil.$category.name}}
+					</a>
+				</div>
+				<hr class="mt-5">
+				<h5 class="text-lg-end">
+					Người bán <u>{{entity.account.name}}</u>
+				</h5>
+				<p class="fs-5">
+					<b>Liên hệ tới</b> <a href="mailTo:{{entity.account.email}}">{{entity.account.email}}</a>
+				</p>
+				<div class="row align-items-md-center">
+					<div class="m-auto col-xl-6">
+						<div class="m-auto bg-opacity-50" style="width: min-content; cursor: pointer;" ng-click="showQR('productQR')">
+							<div id="productQR" class="border border-5 border-warning rounded-3" title="Đặc sản miền trung"></div>
+						</div>
+					</div>
+					<div class="col-xl-6 text-center mt-md-3" th:if="${#request.remoteUser}">
+						<h3>Thêm vào đơn hàng</h3>
+						<!-- Button trigger modal -->
+						<button type="button" class="button-85" data-bs-toggle="modal"
+							data-bs-target="#orderDtail"
+							title="Thêm {{entity.name}} vào đơn hàng">
+							<i class="fa-solid fa-plus"></i>&nbsp;Thêm
+						</button>
+					</div>
+				</div>
+				<!-- Modal -->
+				<div class="modal fade" id="orderDtail" tabindex="-1"
+					aria-labelledby="orderDtailLabel" aria-hidden="true">
+					<div class="modal-dialog" style="width: 79%;">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h1 class="modal-title fs-5" id="orderDtailLabel">
+									Thêm <b>{{entity.name}}</b> vào đơn hàng
+								</h1>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="Close"></button>
+							</div>
+							<div class="modal-body text-start form">
+								<div class="fs-3 d-inline-block" ng-if="!entity.proPrice">
+									<b>Giá</b>:{{entity.cosPrice | number:0}}
+								</div>
+								<div class="w-100 fs-5 d-flex justify-content-between"
+									ng-if="entity.proPrice">
+									<p>
+										<b>Giá gốc</b>: <span
+											class="text-danger text-decoration-line-through">
+											{{entity.cosPrice | number}} </span>
+									</p>
+									<p>
+										<b>Giá khuyến mãi</b>: <span class="text-warning">
+											{{entity.cosPrice-entity.cosPrice*entity.proPrice/100 |
+											number}} </span>
+									</p>
+								</div>
+								<div
+									class="d-inline-block group m-0 {{!entity.proPrice ? 'ms-5 w-50 ' : 'w-100'}}">
+									<input type="number" min="0" max="100" required
+										ng-model="fil.quantity"> <i
+										class="fs-3 fa-solid {{fil.quantity ? 'text-primary fa-circle-dot' : 'text-secondary fa-circle-notch'}}"></i>
+									<span class="highlight"></span> <span class="bar"></span> <label>Số
+										lượng</label>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="button-29"
+									style="background: grey;" data-bs-dismiss="modal"
+									ng-click="fil.quantity=null">Hủy</button>
+								<button type="button" class="button-29" data-bs-dismiss="modal"
+									ng-click="addOrder_detail(entity,fil.quantity)">Xác
+									nhận thêm</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="mt-3 mb-3 col-lg-12 border-top"></div>
+			<div class="col-lg-8 flex-fill overflow-auto scroll-y" style="max-height: 80vh;" id="cateProduct">
+				<div class="d-flex flex-wrap">
+					<div hidden>{{fil.user = '[[${#request.remoteUser}]]'}}</div>
+					<div class="w-100 mt-1 p-2 border rounded-3" ng-repeat="c in comments | orderBy : '-regTime'">
+						<div
+							class="d-flex pb-2 justify-content-between align-items-center">
+							<a class="btn p-0" href="mailTo:{{c.account.email}}">
+								<img class="fit-img o-fit-cover accountAvatar ar1x1" alt="{{c.account.name}}" title="{{c.account.name}}"
+									ng-src="https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png">
+								<span class="text-nowrap overflow-hidden" style="text-overflow: ellipsis;" ng-bind="c.account.name"></span>
+							</a>
+							<div>
+								<label>Đánh giá</label>
+								<div class="d-inline text-warning">
+									<i class="{{x}} fa-star" ng-repeat="x in evalStar(c.evaluate) track by $index"></i>
+								</div>
+							</div>
+							<div class="mt-sm-3 text-end">
+								<span ng-bind="c.regTime | dateRelative : 'dddd, DD-MM-yyyy'"></span>
+								<button class="rounded-3 btn btn-outline-secondary" ng-if="c.account.username==fil.user" ng-click="deleteComment(c)">
+									<i class="fa-solid fa-delete-left"></i>
+								</button>
+							</div>
+						</div>
+						<p class="overflow-auto scroll-y mt-3 mt-lg-0 border-top" style="text-align: justify; max-height: 100px;">
+							{{c.descript}}
+						</p>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-4 p-1 pb-0" th:if="${#request.remoteUser}">
+				<input type="hidden" model="fil.$comment" ng-init="fil.$comment={}">
+				<textarea class="border rounded-3 w-100 p-3 overflow-auto scroll-y" rows="8" style="max-height: 80vh;" ng-model="fil.$comment.descript"></textarea>
+				<div class="d-flex flex-wrap justify-content-end">
+					<div class="col-12 border-top border-bottom p-2">
+						<label>Đánh giá</label>
+						<div class="d-inline text-warning">
+							<input type="hidden" ng-model="fil.$comment.evaluate" ng-init="fil.$comment.evaluate=5">
+							<i ng-repeat="(i,x) in evalStar(fil.$comment.evaluate) track by $index" ng-click="fil.$comment.evaluate=i+1" class="{{x}} fa-star hover"></i>
+						</div>
+					</div>
+					<button class="m-1 button-29" ng-click="postcomemnt(fil.$comment)">
+						Bình luận&nbsp;<i class="fa-regular fa-comments"></i>
+					</button>
+					<button class="m-1 button-29" ng-click="fil.$comment.descript=undefined">
+						Clear&nbsp;<i class="fa-sharp fa-solid fa-trash"></i>
+					</button>
+				</div>
+			</div>
+			<!-- Nomal products -->
+			<div class="col-lg-12 border mt-3 rounded-3 pt-2 pb-2">
+				<!-- Prepare data -->
+				<div class="d-none">
+					{{data2 = (data | filter: {category:{id:fil1.$cate.id} })}}
+					{{fil1.size=(data2.length/12 | number:0)}} <input type="hidden"
+						ng-init="fil1.$cate.id=undefined"> <input type="hidden"
+						ng-init="fil1.page=0">
+				</div>
+
+				<div class="d-flex border-bottom justify-content-between">
+					<h3 class="text-uppercase text-center text-lg-start text-primary">
+						Sản phẩm Theo loại&nbsp; <sup><i class="fas fa-th"></i></sup>
+					</h3>
+					<div class="form">
+						<div class="group mb-3">
+							<input type="text" class="fw-bold" required
+								ng-model="fil.$search.text" name="name"> <i
+								class="fs-3 fa-solid {{fil.$search.text ? 'text-primary fa-circle-dot' : 'text-secondary fa-circle-notch'}}"></i>
+							<span class="highlight"></span> <span class="bar"></span> <label>Tên
+								sản phẩm</label>
+						</div>
+					</div>
+				</div>
+
+				<!-- loai san pham -->
+				<div class="p-2 d-flex overflow-auto scroll-y border-bottom">
+					<button class="m-1 button-49 border-top text-nowrap active"
+						onclick="buttonActive(this, 'categories')" name="categories"
+						ng-click="fil1.$cate.id=undefined">tất cả</button>
+					<button class="m-1 button-49 border-top text-nowrap"
+						ng-repeat="x in categories"
+						onclick="buttonActive(this, 'categories')" name="categories"
+						ng-click="fil1.$cate.id=x.id">{{x.name}}</button>
+				</div>
+
+				<!-- product -->
+				<div
+					class="overflow-auto scroll-y d-flex flex-wrap content-area sample-show-hide">
+					<div class="col-lg-2 col-md-4 col-sm-6 p-1 hover hover-box" ng-dblClick="read(e,'id')"
+						ng-repeat="e in data2 | filter:{name:fil.$search.text} | limitTo: 12:fil1.page*12">
+						<div class="card fit-img">
+							<div class="card-title m-0 fw-bold text-center overflow-auto scroll scroll-x1 text-nowrap">
+								{{e.name}}</div>
+							<div class="card-body p-1">
+								<span class="card-price"
+									style="text-shadow: 0 0 5px #ffffff;">{{e.cosPrice |
+									number}}</span> <span
+									class="position-absolute bg-warning bg-opacity-75 fs-5 badge"
+									style="right: .25rem;" ng-if="e.proPrice>0">
+									<i class="fa-solid fa-tag"></i>&nbsp;{{e.proPrice}}%
+								</span>
+								<!-- Show account and related products control bar -->
+								<div
+									class="m-1 position-absolute bottom-0 end-0 text-end showA text-nowrap overflow-auto"
+									style="width: calc(100% - 0.5em);">
+									<a style="display: none; font-size: small;"
+										href="mailto:{{e.account.email}}" class="btn btn-light p-1">Gửi
+										email</a>
+									<!-- Show account posted content -->
+									<button class="btn p-0 ar1x1">
+										<img class="fit-img o-fit-cover accountAvatar ar16x9"
+											ng-src="https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
+											alt="{{e.account.name}}" title="{{e.account.name}}">
+									</button>
+								</div>
+								<img ng-src="{{getImage(e.images[0])}}" class="fit-img ar16x9"
+									style="object-fit: cover;">
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- pagination -->
+				<nav aria-label="Page navigation example" ng-if="fil1.size > 1">
+					<ul class="pagination justify-content-center">
+						<li class="page-item"
+							ng-click="fil1.page= fil1.page>0?fil1.page-1:0"><a
+							class="page-link" href="" aria-label="Previous"> <span
+								aria-hidden="true">&laquo;</span>
+						</a></li>
+						<li class="page-item d-flex overflow-auto scroll-x">
+							<div class="" ng-click="fil1.page=i"
+								ng-repeat="(i,e) in range(fil1.size)">
+								<a class="page-link" href="" aria-label="Previous">{{e}}</a>
+							</div>
+						</li>
+						<li class="page-item"
+							ng-click="fil1.page= fil1.size>fil1.page?fil1.page+1:fil1.size">
+							<a class="page-link" href="" aria-label="Next"> <span
+								aria-hidden="true">&raquo;</span>
+						</a>
+						</li>
+					</ul>
+				</nav>
+			</div>
+		</div>
+
+		<!-- ANOTHER COMPONENTS -->
+		<div class="row">
+			<!-- Infomation -->
+			<div th:replace="@{/components/_ours-info.htm}"></div>
+			
+			<!-- Partners with website Đặc Sản Miền Trung -->
+			<div th:replace="@{/components/_partners.htm}"></div>
+			
+			<!-- Footer -->
+			<footer th:replace="@{/components/_footer.htm}"></footer>
+		</div>
+		
+		<!-- SHOW MESSAGE -->
+		<div th:replace="@{/components/_message.htm}"></div>
+		
+		<script>
+               const app = angular.module('app', ['ngRoute']);
+               var serverIO = 'http://localhost:8080';
+               moment.locale('vi');
+               
+
+               app.filter('dateRelative', () => {
+                   return (date, format) => `${moment(date).format(format)} (${moment(date).fromNow()})`
+               })
+
+               app.filter('map', () => {
+                   return (arr, col) => arr ? arr.map(x=>x[col]) : map;
+               })
+
+               app.filter('sum',()=>{
+                   return (arr) => {
+                       if(!arr || !arr.length) return 0;
+                       
+                       let amount = 0;
+                       for(x of arr) amount+= x.proPrice 
+                           ? (x.cosPrice-x.cosPrice*x.proPrice/100)*x.quantity
+                           : x.cosPrice * x.quantity;
+                       return amount;
+                   }
+               })
+
+               app.controller('control', function($scope, $http) {
+                   
+                   (async () => {
+                       $scope.order = JSON.parse(localStorage.getItem('order'));
+   		        	
+   		        	   // get info
+   		        	   $http.get(getLink(serverIO,'rest/dir/documents/ourInf.json')).then(r => {
+   		            	   $scope.info = r.data
+   		               }).catch(e => console.error(e.data ? e.data.message : e));
+
+                       // get all partners
+                       $http.get(getLink(serverIO,'rest/dir/documents/partners.json')).then(r => {
+                           if(r.status==200) $scope.partners = r.data
+                       }).catch(e => console.error(e.data ? e.data.message : e));
+
+                       // get all categories
+                       $http.get(getLink(serverIO,'rest/categories')).then(r => {
+                           if(r.status==200) $scope.categories = r.data
+                       }).catch(e => console.error(e.data ? e.data.message : e));
+                       
+                       // get products
+                       $http.get(getLink(serverIO,'rest/products')).then(r => {
+                           if(r.status==200) {
+                               $scope.data = r.data;
+                               let e = LOCAL.get('item');
+                               if(e) {
+                            	   $scope.read(e, 'id');
+                            	   LOCAL.remove('item');
+                               } else $scope.read($scope.data[0], 'id');
+                           }
+                       }).catch(e => console.error(e.data ? e.data.message : e));
+
+                       // get comments
+                       $scope.read = (e, col) => {
+                           try {
+                               let text = `ID:${e.id};NAME:${e.name};PRICE:${e.proPrice>0?e.cosPrice-e.cosPrice*e.proPrice/100:e.cosPrice}`;
+                               generalQR(productQR, text = encodeURI(text), 200, 200);
+                           } catch  (e){generalQR(productQR, `ID:${e.id};CID:${e.category.id}`)}; 
+                           $scope.entity = e;
+                           $http.get(getLink(serverIO,`rest/comments/id?p=${e[col]}`))
+                           .then(r => $scope.comments = r.data)
+                           .catch(e => console.error(e.data ? e.data.message : e));
+                           document.getElementById('detailProduct').scrollIntoView();
+                       };
+                   })();
+                   
+                   $scope.setTitle =(arr, e)=>{
+                       e = document.getElementById(e);
+                       if(!e) return; let str = "";
+                       if(arr && arr.length) {
+                           for(x of arr) str+=x.name+' ('+x.quantity+')\n'
+                           str = str.substring(0,str.lastIndexOf('\n'))
+                       } else str = 'đơn hàng'
+                       e.title=str;
+                   }
+                   
+                   $scope.evalStar = (num) => {
+                	   var arr = [];
+                	   while(arr.length<num) arr.push('fa-solid');
+                	   while(arr.length<5) arr.push('fa-regular');
+                	   return arr;
+                   }
+
+                   // categories
+                   $scope.hasAny = function (id, value, array) {
+                       if(!id || !array) return false;
+                       let i = getIndex(id, value, array);
+                       return i>-1 ? array[i] : null;
+                   }
+
+                   $scope.showQR = (id) => {
+                       let mes = decodeURI(document.getElementById(id).title).replaceAll(';',";<br>");
+                       let name = mes.substring(mes.indexOf('NAME:')+5, mes.lastIndexOf(';'));
+                       showToast(`<em>Ẩm thực</em> ${name}`, mes);
+                   }
+
+                   $scope.createOrder = () => {
+                       // prepare data
+                       let e = angular.copy($scope.order);
+                       e.id=Math.round(Math.random()*-1000);
+                       for(let i in e.order_details) {
+                           var x = e.order_details[i];
+                           e.order_details[i] = {
+                               product_id:x.id, order_id:e.id, quantity:x.quantity,
+                               oldPrice:x.proPrice ? x.cosPrice-x.cosPrice*x.proPrice/100 :x.cosPrice
+                           }
+                       }
+
+                       // save order cart
+                       $http.post(getLink(serverIO,'rest/orders'),e).then(r => {
+                           $scope.clearOrder();
+                           console.log(r);
+                           showToast(`<span class="text-success">Thêm đơn hàng hoàn tất</span>`, `Đã đặt hàng, mã đơn: ODT${r.data.id}`);
+                       }).catch((err) => showToast(`<span class="text-danger">Thêm đơn hàng thất bại</span>`, err.data ? err.data.message : err));
+                   }
+
+                   $scope.clearOrder = () => {
+                       $scope.order = {order_details:[]}
+                       localStorage.setItem('order', JSON.stringify($scope.order));
+                   }
+                   
+                   $scope.addOrder_detail = (e,qty) => {
+                       if(!qty)qty=1;
+                       e.quantity=qty;
+                       // Get list product on local storage
+                       var order = JSON.parse(localStorage.getItem('order'));
+                       if(!order) order = {order_details:[]};
+
+                       // Put list product on local storage
+                       let i = getIndex('id',e.id,order.order_details);
+                       if(i>-1) order.order_details[i].quantity += e.quantity;
+                       else order.order_details.push(angular.copy(e));
+                       $scope.order = order
+                       $scope.fil.quantity = undefined;
+                       localStorage.setItem('order', JSON.stringify($scope.order))
+                   }
+
+                   $scope.updateOrder_detail = (e) => {
+                       localStorage.setItem('order',JSON.stringify($scope.order))
+                   }
+                   
+                   $scope.deleteOrder_detail = (e) => {
+                       var list = $scope.order.order_details;
+                       if(list&&list.length){
+                           for(i in list) if(list[i].id==e.id) list.splice(i,1);
+                           localStorage.setItem('order',JSON.stringify($scope.order));
+                       }
+                   }
+
+                   // create array size
+                   $scope.range = (size) => {
+                       var arr = [];
+                       for (let i = 0; i <= size; arr.push(++i));
+                       return arr;
+                   }
+
+                   // prepare image
+                   $scope.getImage = function(imgName) {
+                       if(imgName) return imgName.startsWith('http') || imgName.startsWith('blob') ? imgName.trim() : getLink(serverIO, 'data/images/product', imgName);
+                       return getLink(serverIO, 'data/images/product/default.png');
+                   }
+
+                   $scope.postcomemnt = (comment) => {
+                       comment.product_id = $scope.entity.id;
+                       comment.account_id = '[[${#request.remoteUser}]]';
+                       
+                       if($scope.fil.$comment.descript)
+                       $http.post(getLink(serverIO,'rest/comments/post'),comment).then(r => {
+                           if(r.status==200) {
+                               $scope.comments.unshift(r.data)
+                               $scope.fil.$comment.descript=undefined;
+                               $scope.fil.$comment.evaluate=5;
+                           }
+                       }).catch(e => console.error(e.data ? e.data.message : e.data));
+                   }
+
+                   $scope.deleteComment = (c) => {
+                       let index = -1, time = moment(new Date(c.regTime)).format('yyyy-MM-D HH:mm:ss.SSS');
+                       for(i in $scope.comments) if($scope.comments[i]==c){
+                           index = i; break;
+                       };
+
+                       if(index > -1) 
+                       $http.delete(
+                           getLink(serverIO,`rest/comments/id?a=${c.account.username}&p=${c.product_id}&t=${time}`)
+                       ).then(r => $scope.comments.splice(index,1)
+                       ).catch(e => console.error(e.data ? e.data.message : e.data));
+                   }
+               });
+           </script>
+	</main>
+</body>
+</html>

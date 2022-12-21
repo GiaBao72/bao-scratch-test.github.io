@@ -1,0 +1,13 @@
+<div class="position-fixed start-0 bottom-0 text-start"
+	style="z-index: 1500;">
+	<div class="ps-1 text-dark">
+		<input class="form-check-input d-none" type="checkbox" role="switch"
+			id="changeBGR"
+			onclick="document.body.setAttribute('class',this.checked ? 'bg-custom' : 'bg-transparent');
+            let bg = document.querySelector('body>div');
+            let cls = bg.getAttribute('class').replaceAll(' bg-light bg-opacity-75', '');
+            bg.setAttribute('class', this.checked ? cls+' bg-light bg-opacity-75' : cls);
+        ">
+		<label class="form-check-label" for="changeBGR">Đổi nền</label>
+	</div>
+</div>

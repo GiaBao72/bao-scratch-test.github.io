@@ -1,0 +1,35 @@
+<div id="infomation" class="m-0 w-100 pt-5 bg-bl_or" ng-if="info">
+    <div class="brand-effect position-relative fw-bolder" style="text-overflow: clip;">
+        <span>Request&nbsp;Response&nbsp;service</span>
+    </div>
+    <div class="row fs-6 mt-5 p-3 text-light" style="text-align: justify;">
+        <p class="col-lg-12">{{info.descript}}</p>
+        <div class="col-lg-3 mt-3">
+            <b>Thành viên nhóm gồm:</b>
+            <ol class="text-light">
+            	<li ng-repeat="o in info.members">{{o.name}}</li>
+            </ol>
+            <br>
+            <p class="text-light">
+                <em>{{info.mesContact}}</em>:
+            </p>
+        </div>
+        <div class="col-lg-9 position-relative">          
+            <div class="d-flex flex-wrap justify-content-center">
+            	<!-- element -->
+                <div class="p-2 position-relative col-2" title="{{o.name}}" ng-repeat="o in info.members">
+                    <img ng-src="{{o.image}}" class="border border-warning rounded-3 border-5 rounded-circle ar1x1 w-100" style="object-fit: cover;">
+                    <div class="position-absolute text-center font-effect-fire-animation" style="top: 5rem; left: 0; right: 0;">
+                        <div class="d-inline m-1" ng-repeat="l in o.references">
+                            <a href="{{l.href}}" class="text-decoration-none" title="{{l.title}}"><i class="{{l.icon}}"></i></a>
+                        </div>
+                    </div>
+                    <h6 class="mt-3 text-center text-uppercase font-effect-fire-animation">{{o.name}}</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-12 text-end fs-6">
+            <h6 class="font-effect-neon" style="color: grey;">dự án tốt nghiệp.</h6>
+        </div>
+    </div>
+</div>

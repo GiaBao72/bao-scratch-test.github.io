@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymleaf.org" th:replace="~{/index::dynamic(~{::main})}">
+<head>
+<meta charset="UTF-8">
+<title>QUẢN LÝ TÀI KHOẢN</title>
+</head>
+<body>
+	<main class="container-fluid" ng-app="app" ng-controller="control">
+
+	<!-- SHOW CONTENT -->
+	<div class="row border" id="detailProduct" ng-view></div>
+
+	<!-- ANOTHER COMPONENTS -->
+	<div class="row">
+		<!-- Infomation -->
+		<div th:replace="@{/components/_ours-info.htm}"></div>
+		
+		<!-- Partners with website Đặc Sản Miền Trung -->
+		<div th:replace="@{/components/_partners.htm}"></div>
+		
+		<!-- Footer -->
+		<footer th:replace="@{/components/_footer.htm}"></footer>
+	</div>
+	
+	<!-- SHOW MESSAGE -->
+	<div th:replace="@{/components/_message.htm}"></div>
+	
+	<script>
+              const app = angular.module('app', ['ngRoute']);
+              var serverIO = 'http://localhost:8080';
+              moment.locale('vi');
+
+              app.filter('dateRelative', () => {
+                  return (date, format) => `${moment(date).format(format)} (${moment(date).fromNow()})`
+              })
+
+              app.filter('sum', () => {
+                  return (arr, cos, qty) => {
+                      if(!arr) return 0;
+                      let  amount = 0;
+                      if(!arr.length) return amount;
+                      for(e of arr) amount+=(eval(`e.${cos}`)*eval(`e.${qty}`));
+                      return amount;
+                  }
+              })
+
+              app.filter('sort', () => {
+                  return (arr, col, desc) => {
+                      if(!arr) return
+                      return desc 
+                          ? arr.sort((x,y) => eval(`x.${col}`).localeCompare(eval(`y.${col}`)))
+                          : arr.sort((x,y) => eval(`y.${col}`).localeCompare(eval(`x.${col}`)));
+                  }
+              })
+
+              app.filter('total', () => {
+                  return (arr) => {
+                      let total = 0;
+                      for(x of arr) total+=x;
+                      return total;
+                  }
+              })
+
+              app.filter('map', () => {
+                  return (arr, col) => arr ? arr.map(x=>x[col]) : map;
+              })
+
+              app.filter('hasAny', () => {
+                  return (value, arr, col) => {
+                      if(!arr) return;
+                      for(x of arr) if(eval(`x.${col}`) == value)
+                          return x;
+                      return null;
+                  }
+              })
+
+              /* ____________________________________________________ config*/
+              app.config(function ($routeProvider) {
+                  $routeProvider.when(
+                      "/home", { templateUrl: "parts/product_buyer/home.htm"}
+                  ).when(
+                      "/details/:id", { templateUrl: "parts/product_buyer/detail.htm", controller: "detailCtrl"}
+                  ).when(
+                      "/waiting", { templateUrl: "parts/product_buyer/waiting.htm", controller: "waitCtrl"}
+                  ).otherwise( // Others
+                      { redirectTo: "/home" }
+                  );
+              });
+
+              app.controller('control', function($rootScope, $scope, $http) {
+   
+                  (async () => {
+                	  let id = '[[${#request.remoteUser}]]';
+  		        	
+  		        	  // get info
+  		        	  $http.get(getLink(serverIO,'rest/dir/documents/ourInf.json')).then(r => {
+  		            	  $scope.info = r.data
+  		              }).catch(e => console.error(e.data ? e.data.message : e));
+  		        	
+                      // get all partners
+                      $http.get(getLink(serverIO,'rest/dir/documents/partners.json')).then(r => {
+                          if(r.status==200) $scope.partners = r.data
+                      }).catch(e => console.error(e.data ? e.data.message : e));
+
+                      // get all detail status
+                      $http.get(getLink(serverIO,'rest/dir/documents/detailStatus.json')).then(r => {
+                          if(r.status==200) $scope.detailStatus = r.data
+                      }).catch(e => console.error(e.data ? e.data.message : e));
+
+                      // get order by account
+                      $http.get(getLink(serverIO,`rest/orders/buyer?id=${id}`)).then(
+                          r => $rootScope.waitData = r.data
+                      ).catch(e => console.error(e.data ? e.data.message : e));
+
+                      // get order_status by account
+                      $http.get(getLink(serverIO,`rest/status/account?id=${id}`)).then(
+                          r => $rootScope.data = r.data
+                      ).catch(e => console.error(e.data ? e.data.message : e));
+                  })();
+
+                  $scope.range = (size) => {
+                      var arr = [];
+                      for (let i = 0; i <= size; arr.push(++i));
+                      return arr;
+                  }
+
+                  // prepare image
+                  $scope.getImage = function(imgName) {
+                      if(imgName) return imgName.startsWith('http') || imgName.startsWith('blob') ? imgName.trim() : getLink(serverIO, 'data/images/product', imgName);
+                      return getLink(serverIO, 'data/images/product/default.png');
+                  }
+
+              });
+          
+              app.controller('detailCtrl', ($scope, $http, $location) => {
+                  
+                  (async (id) => {
+                      id = id.substring(id.lastIndexOf('/')+1);
+                      $http.get(getLink(serverIO,`rest/status/${id}`))
+                      .then(r=>$scope.detail=r.data)
+                      .catch(err=>console.error(err.data?err.data.message:err))
+                      showToast(`Chi tiết đơn hàng <u>ODT${id}</u>`,`Xem chi tiết đơn hàng <u>ODT${id}</u>`);
+                  })($location.$$path);
+
+                  $scope.readDetails = (id) => {
+                      if(!$scope.data) return;
+                      let i = getIndex('order_id',id,$scope.data);
+                      $scope.detail = angular.copy($scope.data[i>-1?i:0]);
+                      let len = $scope.detail.order.order_details;
+                      showToast(`Trạng thái đơn hàng <u>ODT${id}</u>`,`Chi tiết ${len ? len.length : 0} trong đơn hàng <u>ODT${id}</u>`);
+                  }
+                  
+                   // read data
+                   $scope.read = (e) => {
+                      $scope.entity = angular.copy(e);
+                      document.getElementById('detailProduct').scrollIntoView();
+                  };
+
+                  // post data
+                  $scope.post = (e) => {
+                      e = Math.round(Math.random()*-1000);
+                      let i = getIndex('order_id',e.order_id,$scope.data);
+                      if(i < 0) $http.post(getLink(serverIO,'rest/products'), e).then(r => {
+                          let name = r.data.order_id;
+                          $scope.entity = r.data;
+                          $scope.data.unshift(angular.copy(r.data));
+                          showToast(`<span class="text-success">Thêm đơn hàng hoàn tất</span>`, `Đã thêm đơn hàng: ODT${name}`)
+                      }).catch(err => showToast(`<span class="text-danger">Thêm đơn hàng thất bại</span>`, err.data ? err.data.message : err))
+                      else showToast(`<span class="text-warning">Thêm đơn hàng thất bại</span>`, `Đơn hàng có id ODT${e.order_id} <u>đã</u> tồn tại"`)
+                  }
+
+                  // put data
+                  $scope.put = (e) => {
+                      if(!e) return;
+                      let i = getIndex('order_id',e.order_id,$scope.data);
+                      if(i > -1) $http.put(getLink(serverIO,'rest/status'), e).then(r => {
+                          let name = r.data.order_id;
+                          $scope.detail = r.data;
+                          $scope.data[i] = angular.copy(r.data);
+                          showToast(`<span class="text-success">Cập nhật đơn hàng hoàn tất</span>`, `Đã cập nhật đơn hàng: ODT${name}`)
+                          }).catch(err => showToast(`<span class="text-danger">Cập nhật đơn hàng thất bại</span>`, err.data ? err.data.message : err))
+                      else showToast(`<span class="text-warning">Sửa đơn hàng thất bại</span>`, `Đơn hàng có id ODT${e.order_id} <u>không</u> tồn tại"`)
+                  }
+
+                  // delete data
+                  $scope.delete = (k) => {
+                      if(!k) alert('Không thực hiện mã rỗng!')
+                      else if (confirm(`Xác nhận xóa đơn hàng ${k}`)) {
+                          let i = getIndex('order_id',k,$scope.data);
+                          if(i > -1) $http.delete(getLink(serverIO,`rest/status/${k}`)).then(r => {
+                              $scope.data.splice(i,1);
+                              let size = $scope.data.length-1;
+                              if(size > -1) $scope.read($scope.data[i>=size ? size : i])
+                              showToast(`<span class="text-success">Xóa đơn hàng hoàn tất</span>`, `Đã xóa đơn hàng: ${k}`)
+                          }).catch(err => showToast(`<span class="text-danger">Xóa đơn hàng thất bại</span>`, err.data ? err.data.message : err));
+                          else showToast(`<span class="text-warning">Xóa đơn hàng thất bại</span>`, `Đơn hàng có id ODT${e.order_id} <u>không</u> tồn tại"`)
+                      } else showToast(`Đơn hàng id ODT${k}`,`<span class="text-warning">Hủy xóa đơn ODT${k}</span>`)
+                  }
+              
+              });
+          
+              app.controller('waitCtrl', ($scope, $http) => {
+                  
+                  $scope.remove = (e,x) => {
+                      for(i in e.order_details)
+                          if(e.order_details[i].product.id==x.product_id) {
+                              e.order_details.splice(i,1); break;
+                          }
+                  }
+
+                  $scope.put = (e) => {
+                      if(!e) return;
+                      let i = getIndex('id',e.id,$scope.waitData);
+
+                      if(i > -1) $http.put(getLink(serverIO,'rest/orders'), e).then(r => {
+                          let name = r.data.id;
+                          $scope.waitData[i] = angular.copy(r.data);
+                          showToast(`<span class="text-success">Cập nhật đơn hàng hoàn tất</span>`, `Đã cập nhật đơn hàng: ODT${name}`)
+                          }).catch(err => showToast(`<span class="text-danger">Cập nhật đơn hàng thất bại</span>`, err.data ? err.data.message : err))
+                      else showToast(`<span class="text-warning">Sửa đơn hàng thất bại</span>`, `Đơn hàng có id ODT${e.id} <u>không</u> tồn tại"`)
+                  }
+
+                  // delete data
+                  $scope.delete = (k) => {
+                      if(!k) alert('Không thực hiện mã rỗng!')
+                      else if (confirm(`Xác nhận xóa đơn hàng ${k}`)) {
+                          let i = getIndex('id',k,$scope.waitData);
+                          if(i > -1) $http.delete(getLink(serverIO,`rest/orders/${k}`)).then(r => {
+                              $scope.waitData.splice(i,1);
+                              showToast(`<span class="text-success">Xóa đơn hàng hoàn tất</span>`, `Đã xóa đơn hàng: ${k}`)
+                          }).catch(err => showToast(`<span class="text-danger">Xóa đơn hàng thất bại</span>`, err.data ? err.data.message : err));
+                          else showToast(`<span class="text-warning">Xóa đơn hàng thất bại</span>`, `Đơn hàng có id ODT${k} <u>không</u> tồn tại"`)
+                      } else showToast(`Đơn hàng id ODT${k}`,`<span class="text-warning">Hủy xóa đơn ODT${k}</span>`)
+                  }
+              });
+          </script>
+	</main>
+</body>
+</html>

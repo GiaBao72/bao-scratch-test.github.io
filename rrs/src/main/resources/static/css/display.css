@@ -1,0 +1,224 @@
+.bg-bl_or {
+    background: linear-gradient(0, black, orange);
+}
+.bg-custom,
+.bg-custom {
+    width: 100%;
+    height: 100%;
+}
+.bg-custom input[type=text],
+.bg-custom input[type=number],
+.bg-custom input[type=date],
+.bg-custom textarea ,
+.bg-custom select {
+    background: transparent;
+}
+
+.bg-custom {
+    background: linear-gradient(90deg,
+        #ee5252, #ee7752, #e73c7e,
+        #23a6d5, #23d5ab, #23d54f,
+        #bad523, #d5a523, #d52323
+    );
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* SCROLL */
+::-webkit-scrollbar-track {
+    background-color: #F5F5F5;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #F90;
+    background-image: -webkit-linear-gradient (45deg, rgba(255, 255, 255, .2) 25%,
+            transparent 25%,
+            transparent 50%,
+            rgba(255, 255, 255, .2) 50%,
+            rgba(255, 255, 255, .2) 75%,
+            transparent 75%,
+            transparent)
+}
+
+@media (min-width: 992px) {
+    .ar4x3 {
+        aspect-ratio: 16/6.35 !important;
+    }
+}
+
+.table tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    /* even columns width , fix width of table too*/
+}
+
+.table td {
+    vertical-align: middle;
+    overflow: auto;
+}
+
+/* Text vertical */
+.fit-img {
+    height: 100%;
+    width: 100%;
+}
+
+.fit-min {
+    min-width: 100% !important;
+    min-height: 100% !important;
+}
+
+.text-vr {
+    writing-mode: vertical-lr;
+    text-orientation: mixed;
+}
+
+.accountAvatar {
+    border-radius: 20px;
+    max-width: 2.5rem;
+    border: 1px solid #ffff00;
+}
+
+.subject-content {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    position: absolute;
+    background-color: #ffff00;
+    width: calc(100% - .5rem);
+    padding: 0 1rem;
+}
+
+.fit-choose-img {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 2rem;
+    left: 0;
+    opacity: 0;
+}
+
+.fit-label-img {
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* fit image */
+.o-fit-cover,
+.o-fit-contain:active {
+    object-fit: cover;
+}
+
+.o-fit-contain,
+.o-fit-cover:active {
+    object-fit: contain;
+}
+
+/* hover */
+.hover:hover {
+    opacity: 1;
+    animation: effect1 forwards 1s;
+}
+
+.hover-bg:hover {
+    background: #0000004d;
+}
+
+.hover-box:hover {
+    box-shadow: 0 0 10px #0000004d;
+}
+
+.showA:hover {
+    border-radius: 0 1.5rem 0 .5rem;
+    background-color: #000000a2;
+}
+
+.showA:hover>a {
+    display: inline !important;
+}
+
+/* size */
+.size-2 {
+    width: calc(100%/2);
+}
+
+.size-3 {
+    width: calc(100%/3);
+}
+
+.size-4 {
+    width: calc(100%/4);
+}
+
+.size-5 {
+    width: calc(100%/5);
+}
+
+.ar1x1 {
+    aspect-ratio: 1/1;
+}
+
+.ar4x3 {
+    aspect-ratio: 4/3;
+}
+
+.ar16x4 {
+    aspect-ratio: 16/4;
+}
+
+.ar16x6 {
+    aspect-ratio: 16/6;
+}
+
+.ar16x9 {
+    aspect-ratio: 16/9;
+}
+
+.ar16x10 {
+    aspect-ratio: 16/10;
+}
+
+.ar3x4 {
+    aspect-ratio: 3/4;
+}
+
+.ar9x16 {
+    aspect-ratio: 9/16;
+}
+
+.ar10x16 {
+    aspect-ratio: 10/16;
+}
+
+/* Effects */
+@keyframes effect1 {
+    50% {
+        opacity: .5;
+        transform: translateY(-.25rem);
+        box-shadow: 0 0 1.5rem #ff4800;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+

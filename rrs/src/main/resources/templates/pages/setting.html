@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymleaf.org" th:replace="~{/index::dynamic(~{::main})}">
+<head>
+<meta charset="UTF-8">
+<title>Developer mode</title>
+</head>
+<body>
+    <main>    
+        <h1 class="p-3 font-effect-fire-animation text-center text-uppercase fw-bolder">Quản lý thông tin khác</h1>
+		<div class="position-relative p-1 border rounded-3" ng-app="app" ng-controller="control">
+            <!-- NAVBAR -->
+            <nav class="navbar navbar-expand-lg" id="cateProduct">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="#">
+                        <i class="fa-solid fa-gears" onclick="location.reload()">Setting</i>
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="offcanvas" href="#offcanvasCategory" role="button"
+                                    aria-controls="offcanvasCategory" ng-click="get('categories')">
+                                    <i class="fa-solid fa-layer-group"></i>&nbsp;Phân loại hàng
+                                </a>
+                            </li>
+                            <li class="nav-item" >
+                                <a class="nav-link" data-bs-toggle="offcanvas" href="#offcanvasFile" role="button"
+                                    aria-controls="offcanvasFile" ng-click="get('dirmap/images', 'mapFile')">
+                                    <i class="fa-solid fa-file"></i>&nbsp;Tệp dữ liệu
+                                </a>
+                            </li>
+                        </ul>
+                        <button class="ms-1 btn btn-outline-light" onclick="location.reload()">reload</button>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Categories -->
+            <div class="offcanvas offcanvas-bottom h-75" tabindex="-1" id="offcanvasCategory" aria-labelledby="offcanvasCategoryLabel">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="offcanvasCategoryLabel"><i class="fa-solid fa-layer-group"></i>&nbsp;CATEGORIES</h5>
+                    <div class="fs-5">
+                        <label class="fw-bold">Thống kê:</label>
+                        <span>tổng: <u>{{fil.$category.quantity=categories.length}}</u></span>
+                        <span>hiển thị: <u>{{fil.$category.length=(categories | filter:fil.$category.search).length}}</u></span>
+                    </div>
+                    <div class="d-flex">
+                        <div class="ms-1">
+                            <label class="fw-bold">tìm kiếm</label>
+                            <input type="text" class="form-control" placeholder="keywords" ng-model="fil.$category.search">
+                        </div>
+                        <div class="ms-1">
+                            <label class="fw-bold">Sắp xếp</label>
+                            <select class="form-select" ng-model="fil.$category.orderBy" ng-init="fil.$category.orderBy='id'">
+                                <option class="bg-success text-center fw-bold">A-Z</option>
+                                <option class="text-end" value="id">Tăng id ➡</option>
+                                <option class="text-end" value="name">Tăng name ➡</option>
+                                <option class="bg-danger text-center fw-bold">Z-A</option>
+                                <option class="text-start" value="-id">⬅Giảm id</option>
+                                <option class="text-start" value="-name">⬅Giảm name</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <button type="button" class="me-3 btn btn-outline-warning btn-sm" onclick="new bootstrap.Toast(liveToast).show()">view message</button>
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+                </div>
+                <div class="offcanvas-body">
+                    <div class="row">
+                        <div class="col-lg-8 overflow-auto scroll scroll-y" style="max-height: 60vh;">
+                            <h3 class="w-100 text-center">Show data</h3>
+                            <table class="table table-hover">
+                                <thead class="text-center">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>NAME</th>
+                                        <th>ACTIONS</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="text-center" ng-repeat="e in categories | filter:fil.$category.search | orderBy:fil.$category.orderBy" ng-dblclick="read(e, 'category')">
+                                        <td ng-bind="e.id"></td>
+                                        <td ng-bind="e.name"></td>
+                                        <td class="text-end">
+                                            <button class="btn btn-outline-danger" ng-click="delete(e.id, 'categories')">DELETE</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-lg-4 border-start">
+                            <h3 class="w-100 text-center">Form data</h3>
+                            <form id="category">
+                                <div class="mt-1">
+                                    <label class="fw-bold">id</label>
+                                    <input type="text" class="form-control" ng-model="category.id">
+                                </div>
+                                <div class="mt-1">
+                                    <label class="fw-bold">name</label>
+                                    <input type="text" class="form-control" ng-model="category.name">
+                                </div>
+                                <div class="mt-1 text-end">
+                                    <div class="btn-group p-1 mw-100 border border-info bg-dark rounded-2 overflow-auto scroll scroll-x">
+                                        <button class="btn btn-outline-success" ng-click="post(category, 'categories', 'random')">create</button>
+                                        <button class="btn btn-outline-warning" ng-click="put(category, 'categories')">update</button>
+                                        <button class="btn btn-outline-danger" ng-click="delete(category.id, 'categories')">delete</button>
+                                        <button type="reset" class="ms-3 btn btn-outline-light" ng-click="category=null">reset</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- File -->
+            <div class="offcanvas offcanvas-bottom h-75" tabindex="-1" id="offcanvasFile" aria-labelledby="offcanvasFileLabel">
+                <div class="offcanvas-header">
+                    <h1 class="offcanvas-title" id="offcanvasFileLabel">
+                        <i class="fa-solid fa-file"></i>&nbsp;File
+                    </h1>
+                    <div>
+                        <label class="fw-bold">Create folder</label>
+                        <form class="border p-1 d-flex">
+                            <input type="text" class="form-control" placeholder="folder's name" ng-model="folderNames">
+                            <button class="ms-1 btn btn-outline-success" ng-click="postDirs(mapFile.path, folderNames)">CREATE</button>
+                            <button class="ms-1 btn btn-outline-secondary" ng-click="folderNames=null">RESET</button>
+                        </form>
+                    </div>
+                    <div>
+                        <label class="fw-bold">File upload</label>
+                        <form class="border p-1 d-flex" enctype="multipart/form-data">
+                            <input type="file" id="formFile" name="files" class="form-control" accept="image/png,image/jpeg" multiple onchange="prepareFile(showImage, this)">
+                            <button class="ms-1 btn btn-outline-success" ng-click="postFiles(mapFile.path)">UPFILES</button>
+                        </form>
+                    </div>
+                    <div>
+                        <div class="form-check form-switch">
+                            <input type="checkbox" class="form-check-input position-relative" id="onlyFolder" ng-model="fil.$file.orElse"
+                                ng-change="fil.$file.orElse ? fil.$file.search='.' : fil.$file.search='!.'">
+                            <label class="form-check-label" for="onlyFolder">file || folder</label>
+                            <a href="" class="{{fil.$file.orElse==undefined ? 'text-primary' : 'text-danger'}}"
+                                ng-click="fil.$file.orElse=fil.$file.search=undefined">All</a>
+                            </div>
+                        <div class="d-flex">
+                            <input type="text" class="form-control" ng-model="fil.$file.search" placeholder="keywords">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center">
+                            <button type="button" class="me-3 btn btn-outline-warning btn-sm" onclick="new bootstrap.Toast(liveToast).show()">view message</button>
+                            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="text-center">
+                            <label><em>Tổng:</em> <u>{{mapFile.files.length}}</u></label>
+                            <label><em>hiển thị:</em> <u>{{(mapFile.files | filter:fil.$file.search).length}}</u></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="offcanvas-body">
+                    <!-- Show files prepare -->
+                    <div class="pt-3 d-flex flex-wrap overflow-auto" style="max-height: 50vh;" id="showImage"></div>
+
+                    <!-- breadcrumb -->
+                    <h5 class="border-top border-3 border-danger">
+                        <span ng-repeat="(i,name) in (setPaths = breadcrumb(mapFile.path))">
+                            <span ng-if="i==0">{{name}}&nbsp;/</span>
+                            <span ng-if="i>0">
+                                <a href="" ng-click="get(i==1 ? 'dirmap/images' : pathURL(mapFile.path, setPaths[i+1]), 'mapFile')">{{name}}</a>&nbsp;/
+                            </span>
+                        </span>
+                    </h5>
+
+                    <!-- Show data -->
+                    <div class="border-top border-3 border-danger d-flex flex-wrap">
+                        <div ng-repeat="name in mapFile.files | filter:fil.$file.search" class="flex-lg-grow-1 p-2 size-5 position-relative" title="{{name}}" data="{{srcFile = (mapFile.path+name)}}">
+                            <!-- Show folder -->
+                            <a ng-if="!(isFileV = isFile(name))" ng-dblclick="get(srcFile, 'mapFile')" class="d-block text-center border border-dark border-1">
+                                <i class="display-1 fa-solid fa-folder-open"></i>
+                                <p class="fs-1" ng-bind="&nbsp;name"></p>
+                            </a>
+                            <!-- show file images -->
+                            <img ng-if="isFileV" ng-src="{{srcFile}}" class="fit-img ar16x10 o-fit-cover rounded-1 hover" alt="{{name}}">
+
+                            
+                            <!-- Action buttons -->
+                            <div class="m-2 position-absolute top-0 end-0">
+                                <div class="btn-group-vertical">
+                                    <button class="btn {{isFileV ? 'btn-outline-danger' : 'btn-danger'}}" ng-click="deleteFile(srcFile)">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                    <a class="btn btn-outline-info" href="{{srcFile}}" target="_blank" ng-if="isFileV">
+                                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                    </a>
+                                    <a class="btn btn-outline-success" href="{{srcFile}}" target="_blank" ng-if="isFileV" download>
+                                        <i class="fa-solid fa-download"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <label class="position-absolute m-2 bottom-0 start-0 end-0 bg-dark bg-opacity-25 text-center border-top" ng-if="isFileV" style="z-index: 1050;">
+                                <span class="text-primary fw-bolder" ng-bind="name"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+        	<!-- ANOTHER COMPONENTS -->
+			<div>
+			
+				<!-- Partners with website Đặc Sản Miền Trung -->
+				<div th:replace="@{/components/_partners.htm}"></div>
+				
+				<!-- Infomation -->
+				<div th:replace="@{/components/_ours-info.htm}"></div>
+				
+				<!-- Footer -->
+				<footer th:replace="@{/components/_footer.htm}"></footer>
+			</div>
+			
+			<!-- SHOW MESSAGE -->
+			<div th:replace="@{/components/_message.htm}"></div>
+        </div>
+
+		<!-- Javascript app -->
+		<script type="text/javascript">
+
+			const app = angular.module('app', ['ngRoute']);
+			const serverIO = "http://localhost:8080"; // protocol://host:port
+	
+			app.controller('control', function ($scope, $http) {
+				
+				(async () => {
+		        	// get info
+		        	$http.get(getLink(serverIO,'rest/dir/documents/ourInf.json')).then(r => {
+		               $scope.info = r.data
+		            }).catch(e => console.error(e.data ? e.data.message : e));
+
+                    // get all partners
+                    $http.get(getLink(serverIO,'rest/dir/documents/partners.json')).then(r => {
+                        if(r.status==200) $scope.partners = r.data
+                    }).catch(e => console.error(e.data ? e.data.message : e));
+
+
+                })();
+	
+			    $scope.read = function (data, entityName) {
+			        let id="";
+			        if(data) $scope[entityName] = angular.copy(data);
+			        if(typeof data.id != 'object') id = data.id;
+			        else for(i of Object.keys(data.id)) id += ` ${data.id[i]}`;
+			        showToast(`Lấy dữ liệu ${id}`, `Đọc thông tin của: ${id}`);
+			    }
+			    
+			    $scope.setTime = function(entity, column){
+					entity[column] = new Date(entity[column]);
+				}
+			    
+			    // _______________________________________________________________________ CRUD DATA
+			    $scope.get = function (get, toSet) {
+			        if(!get) return;
+			        let name = get.substring(get.lastIndexOf('/')+1), isHTTP = false;
+			        if(get.lastIndexOf('/') == get.length-1) get = get.substring(0,get.length-1);
+			        let path = (isHTTP = get.startsWith('http')) ? get.replace('0/data', '0/rest/dirmap') : `${serverIO}/rest/${get}`;
+			        let title = isHTTP ? `Tải thư mục: ${name}` : `Tải dữ liệu: ${get}`;
+	
+			        $http.get(getLink(path)).then(result => {
+			            if(get) $scope[toSet ? toSet : get] = result.status==200 ? result.data : [];
+			            var data = $scope[toSet ? toSet : get];
+				        showToast(title, `Đã tải ${data.length ? data.length : data.files.length} dữ liệu`);
+			        }).catch(err => {
+			            console.error('get data error', err);
+			            showToast(title, `Lỗi tải dữ liệu!`);
+			        });
+			    }
+	
+			    $scope.post = function (entity, arrName, ...otherPaths) { // post to save and return data saved
+			        let i = getIndex('id', entity.id, $scope[arrName]);
+			        let path = getLink(serverIO,'rest',arrName, otherPaths);
+			        let title = `Thêm mới dữ liệu ${arrName}`;
+	
+			        if(i < 0) $http.post(path, entity).then(result => {
+			            if(result.status == 200) {
+			                $scope[arrName].unshift(entity = result.data);
+			                console.log(`${entity.id} has been created.`);
+				            showToast(title, `Đã thêm mới dữ liệu`);
+			            } else {
+			                console.warn(`status is ${result.status} cannot create!`);
+				            showToast(title, `Thêm dữ liệu không thành công!`);
+			            }
+			        }).catch(err => {
+			            console.error(err.data 
+			                ? `error's ${err.data.message} cannot create!` 
+			                : 'create error', err
+			            );
+			            showToast(title, `Lỗi thêm dữ liệu ${err.data ? err.data.message : err.status}`);
+			        }); else showToast(title, `${entity.id} đã tồn tại, không thể thêm`);
+			    };
+	
+			    $scope.put = function (entity, arrName) { // put to update and return data updated
+			        if (!entity) return; // entity is null don't save
+			        let i = getIndex('id', entity.id, $scope[arrName]);
+			        let path = getLink(serverIO,'rest',arrName);
+			        let title = `Cập nhật dữ liệu ${arrName}`;
+			        
+			        if (-1 < i) $http.put(path, entity).then(result => {
+			            if(result.status == 200) {
+			                $scope[arrName][i] = entity = result.data;
+			                console.log(`Update ${entity.id} successfully.`);
+			                showToast(title, `Đã cập nhật dữ liệu`);
+			            } else {
+			                console.warn(`status is ${result.status} cannot update!`);
+			                showToast(title, `Cập nhật thông tin không thành công!`);
+			            }
+			        }).catch(err => {
+			            console.error(err.data 
+			                ? `error's ${err.data.message} cannot create!` 
+			                : 'update error', err
+			            );
+		                showToast(title, `Lỗi cập nhật dữ liệu ${err.data ? err.data.message : err.status}`);
+			        }); else showToast(title, `${entity.id} không tồn tại, không thể cập nhật thông tin`);
+			    };
+	
+			    $scope.deletesByColumn = function(value, columnName, arrName) {
+			        let path = getLink(serverIO, 'rest', arrName, `${columnName}?${columnName}=${value}`)
+			        let title = `Xóa dữ liệu ${value}`;
+	
+			        $http.delete(path).then(r => {
+			            if(r.status == 200) {
+			                let count = 0;
+			                for (let i = 0; i < $scope[arrName].length; i++) {
+			                    let x = $scope[arrName][i][columnName];
+			                    if(x == value) {$scope[arrName].splice(i--,1); count++}
+			                } showToast(title, `Đã xóa ${count} dữ liệu chứa ${value}`);
+			            } else showToast(title, `Xóa dữ liệu ${value} không thành công!`);
+			        }).catch(e => {
+			            console.error(e.data ? e.data.message : e);
+			            showToast(title, `Lỗi xóa thông tin: ${e.data ? e.data.message : e.status}`);
+			        });
+			    }
+	
+			    $scope.delete = function (key, arrName) { // delete data by key("id") and *not return.
+			        if (!key) return; // key undefined, definitely does not exist.
+			        let isObject = typeof key == "object";
+			        let i = getIndex(isObject ? null : 'id', key, $scope[arrName]);
+			        let path = getLink(serverIO,'rest',arrName,isObject ? `id?${objectPath(key.id)}`: key);
+			        let title =`Xóa dữ liệu ${arrName}`;
+			        
+			        if (-1 < i) $http.delete(path, isObject ? key.id : null).then(result => {
+			            if(result.status == 200) {
+			                $scope[arrName].splice(i,1);
+			                console.log(`${key} has been deleted.`);
+			                showToast(title, `Đã xóa dữ liệu có mã: ${isObject ? JSON.stringify(key.id) : key}`);
+			            } else {
+			                console.warn(`status is ${result.status} cannot delete!`);
+			                showToast(title, `Không thể xóa: ${isObject ? JSON.stringify(key.id) : key}`);
+			            }
+			        }).catch(err => {
+			            console.error(err.data 
+			                ? `error's ${err.data.message} cannot delete!` 
+			                : 'delete error', err
+			            );
+		                showToast(title, `Lỗi xóa dữ liệu ${err.data ? 
+				                err.data.status == 500 ? `mã ${key} đang liên kết, hiện không thể xóa` : 
+				                `Lỗi thực hiện: ${err.data.message}` : err.status}`);
+			        }); else showToast(title, `${isObject ? JSON.stringify(key.id) : key} không tồn tại, không thể xóa thông tin`);
+			    };
+	
+			    // _______________________________________________________________________ FILES
+			    $scope.isFile = function(str) {
+			        if(str) return str.lastIndexOf('.') > -1;
+			    }
+			    
+			    $scope.breadcrumb = function (str) {
+			        if(!str) return;
+			        let cut = '0/data/';
+			        let uri = str.substring(str.lastIndexOf(cut)+cut.length, str.length-1);
+			        var arr = [`${serverIO}/data`, ...uri.split('/')];
+			        return arr;
+			    }
+	
+			    $scope.postDirs = function (path, uri) {
+			        let title = `Tạo mới thư mục ${uri}`;
+	
+			        $http.post(pathSP(
+			            path.endsWith('/') ? path.substring(path.length-1,-1) : path, uri
+			        )).then(resp => {
+			            if(resp.status == 200) {
+			                $scope.mapFile.files.unshift(resp.data);
+			                showToast(title, `Đã tạo thư mục ${uri}`);
+			            } else showToast(title, `Tạo mới thư mục ${uri} không thành công`);
+			        }).catch(err => {
+			            console.error('Create folder error', err.data ? err.data.message : err);
+			            showToast(title, `Lỗi tạo thư mục: ${err.data ? err.data.message : err.status}`);
+			        });
+			    }
+	
+			    $scope.postFiles = function (path) {
+			        var data = new FormData(); // prepare files data
+			        let title = "Tạo mới tệp";
+			        for(file of formFile.files) data.append('files', file);
+	
+			        $http.post( // post data to save
+			            pathSP(path.endsWith('/') ? path.substring(path.length-1,-1) : path),
+			            data, {TransformRequest: angular.identity,
+			                headers: {'content-Type': undefined}
+			            }
+			        ).then(resp => {
+			            if(resp.status == 200) {
+			                $scope.mapFile.files.unshift(...resp.data);
+			                for(t of [,'file']) formFile.type = t;
+			                prepareFile(showImage, formFile);
+			                showToast(title, `đã lưu thành công các tệp\n${resp.data.toString().replaceAll(',','\n')}`);
+			            } else showToast(title, `Lưu ${formFile.files.length} tệp không thành công`);
+			        }).catch(err => {
+			            console.error('Files upload error', err.data ? err.data.message : err);
+			            showToast(title, `Lỗi tải lên tệp dữ liệu ${err.data ? err.data.message : err.status}`);
+			        });
+			    }
+	
+			    $scope.deleteFile = function(name) {
+			        let fileName = name.substring(name.lastIndexOf('/')+1);
+			        let i = getIndex(null, fileName, $scope.mapFile.files);
+			        let path = pathSP(name);
+			        let title = `Xóa tệp ${fileName}`;
+			        path = path.endsWith('/') ? path.substring(path.length-1,-1): path;
+			        
+			        if(i>-1) $http.delete(path).then((resp) => {
+			            if(resp.status == 200) {
+			                $scope.mapFile.files.splice(i, 1);
+			                showToast(title, `Đã xóa tệp ${fileName} thành công`);
+			            } else showToast(title, `Xóa tệp ${fileName} không thành công`);
+			        }).catch(err => {
+			            console.error('Delete file error', err.data ? err.data.message : err);
+			            showToast(title, `Lỗi xóa tệp ${err.data ? err.data.message : err.status}`);
+			        }); else showToast(title, `${fileName} không tồn tại, không thể xóa tệp`);
+			    }
+	
+			    // EX: (http://localhost:8080/data/images/any/a/...,"any") => http://localhost:8080/rest/dirmap/images
+			    $scope.pathURL = function(str, cut){
+			        str = str.substring(0, str.lastIndexOf(cut));
+			        str = str.replace('0/data', '0/rest/dirmap')
+			        return str;
+			    }
+	
+			    function pathSP(str, ...directories) { // replace and concat paths
+			        return getLink(str.replace('0/data', '0/rest/dir'), directories)
+			    }
+			});
+	
+			function prepareFile(toShow, input) {
+			    toShow.innerHTML = null;
+			    for(e of input.files) {
+			       let div = document.createElement('div');
+			       div.setAttribute('class', 'p-1 size-5 ar16x9 position-relative');
+			       div.innerHTML = `<img class="fit-img ar4x3 o-fit-cover" src="${URL.createObjectURL(e)}" alt="${e.name}"><label class="fit-label-img bg-dark bg-opacity-50 text-center text-light">${e.name}</label>`;
+			       toShow.appendChild(div);
+			    }
+			}
+	
+			function objectPath(key) {
+			    var path = "";
+			    for(i of Object.keys(key)) path += `${i}=${key[i]}&`
+			    return path.substring(0,path.lastIndexOf('&'))
+			}
+		</script>
+    </main>
+</body>
+
+</html>

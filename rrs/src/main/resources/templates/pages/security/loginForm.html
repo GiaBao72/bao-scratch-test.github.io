@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymleaf.org" th:replace="~{/index::dynamic(~{::main})}">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<main class="container-fluid">
+		<div class="row border-3 border-info border-start border-end">
+			<div class="mt-5"></div>
+			<div class="m-auto col-lg-6 p-lg-1">
+				<h3 class="text-uppercase text-center fw-bolderw-100 font-effect-fire-animation">Đăng nhập tài khoản</h3>
+				
+				<form action="/security/login" method="post"
+					class="fs-3 p-3 mt-3 border rounded-3">
+					<div class="mt-1">
+						<label for="username" class="form-label">username</label>
+						<input type="text" class="form-control" placeholder="Tên đăng nhập?" id="username" name="username">
+					</div>
+					<div class="mt-1">
+						<label for="password" class="form-label">password</label>
+						<div class="input-group">
+							<input type="password" class="form-control"
+								placeholder="Mật khẩu?" id="password" name="password">
+								<span class="input-group-text" onclick="showPass(password, this.getElementsByTagName('i')[0])">
+								<i class="fa fa-eye-slash"></i>
+							</span>
+						</div>
+					</div>
+
+					<div
+						class="mt-3 fs-6 d-lg-flex align-items-center justify-content-between">
+						<div class="form-check form-switch">
+							<input class="form-check-input float-none" type="checkbox"
+								id="rememberMe" name="remember-me"> <label
+								class="form-check-label text-nowrap" for="rememberMe">Lưu
+								tài khoản?</label>
+						</div>
+						<div class="text-end">
+							<a class="me-3 text-danger" href="/security/forgot_password">[Quên
+								mật khẩu&nbsp;<i class="fa-light fa-question"></i>]
+							</a>
+							<div class="btn-group">
+								<a href="/security/register" class="btn btn-outline-warning">Đăng
+									ký</a>
+								<button type="submit" class="btn btn-outline-primary">Đăng
+									nhập</button>
+							</div>
+						</div>
+					</div>
+				</form>
+				<div class="mt-3 d-lg-flex">
+					<a class="m-1 btn btn-primary flex-fill" href="/security/loginAuth2/facebook">
+						<i class="fa-brands fa-facebook"></i> facebook
+					</a>
+					<a class="m-1 btn btn-danger flex-fill" href="/security/loginAuth2/google">
+						<i class="fa-brands fa-google"></i> google
+					</a>
+				</div>
+			</div>
+			<div class="mt-lg-5"></div>
+		</div>
+	</main>
+</body>
+</html>

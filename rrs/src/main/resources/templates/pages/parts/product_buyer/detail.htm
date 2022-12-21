@@ -1,0 +1,194 @@
+<nav aria-label="breadcrumb">
+	<ol class="breadcrumb">
+		<li class="breadcrumb-item"><a href="/rrs">Trang chủ</a></li>
+		<li class="breadcrumb-item"><a href="#/home">Danh sách order</a></li>
+		<li class="breadcrumb-item active" aria-current="page">Chi tiết
+			hóa đơn {{detail.order_id}}</li>
+	</ol>
+</nav>
+
+
+<div class="m-auto mb-3 mt-3">
+	<!-- Prepare data -->
+	<div class="d-none">
+		<input type="hidden" ng-model="fil.$search.status"
+			ng-init="fil.$search.status=undefined"> {{data1 = (data |
+		filter:{status:fil.$search.status} |
+		filter:{order:{address:fil.$search.address} }) }}
+		{{fil2.size=(data1.length/6 | number:0)}} <input type="hidden"
+			ng-init="fil2.$cate.id=undefined"> <input type="hidden"
+			ng-init="fil2.page=0">
+	</div>
+
+	<!-- show data filter by status -->
+	<div class="m-2 mt-lg-3 d-flex justify-content-end flex-wrap">
+		<button class="m-1 button-89 flex-fill text-primary"
+			onclick="location.href='#waiting'">Đơn chờ xác nhận</button>
+		<button class="m-1 button-89 flex-fill"
+			ng-click="fil.$search.status=e.id;fil2.page=0"
+			ng-repeat="e in detailStatus">{{e.name}}</button>
+	</div>
+</div>
+
+<div class="col-lg-7 d-flex flex-wrap align-content-start"
+	ng-if="detail">
+	<div class="col-md-3">
+		<Strong>Mã hóa đơn</Strong> <span>ODT{{detail.order_id}}</span>
+	</div>
+	<div class="col-md-6">
+		<Strong>Trạng thái:&nbsp;</Strong> <span>{{(detail.status |
+			hasAny:detailStatus:'id').name}}</span>
+	</div>
+	<div class="col-md-3 text-end">
+		<Strong>Shipper</Strong> <span>{{detail.account_id}}</span>
+	</div>
+	<div class="col-12 text-md-end">
+		<Strong>Thời gian</Strong>: <span>{{detail.order.regTime |
+			dateRelative:'LLLL'}}</span>
+	</div>
+	<div class="col-12">
+		<b>Tổng cộng đơn hàng:</b> <span>{{(detail.order.order_details
+			| sum:'oldPrice':'quantity') | number}}</span>
+	</div>
+	<form class="form col-12">
+		<div class="group">
+			<textarea class="scroll-y" rows="2" style="text-align: justify;"
+				ng-model="detail.order.address"></textarea>
+			<span class="highlight"></span> <span class="bar"></span>
+		</div>
+	</form>
+
+	<div class="w-100 overflow-auto scroll-y" style="max-height: 80vh;">
+		<h3 ng-if="1>detail.order.order_details.length"
+			class="text-center text-warning">Giỏ hàng chưa có sản phẩm</h3>
+		<table
+			class="mt-3 table-bordered border-info border-1 w-100 text-center text-nowrap"
+			ng-repeat="d in detail.order.order_details">
+			<tr>
+				<td class="w-25" rowspan="4"><img class="fit-img"
+					ng-src="{{getImage(d.product.images.length>0?d.product.images[0]:'default.png')}}">
+				</td>
+				<th class="w-25">Mã sản phẩm</th>
+				<th class="text-center" colspan="2">Tên sản phẩm</th>
+			</tr>
+			<tr>
+				<td>{{d.product_id}}</td>
+				<td class="text-center" colspan="2">{{d.product.name}}</td>
+			</tr>
+			<tr>
+				<th>Giá mua</th>
+				<th class="w-25">Số lượng</th>
+				<th class="w-25">Tổng</th>
+			</tr>
+			<tr>
+				<td>{{d.oldPrice|number}}</td>
+				<td><input class="text-center form-control" type="number"
+					ng-model="d.quantity" max="100"></td>
+				<td class="text-danger">{{d.oldPrice*d.quantity|number}}</td>
+			</tr>
+		</table>
+	</div>
+
+	<!-- button control -->
+	<div class="col-12 border-top border-bottom border-info"
+		style="padding: .5rem 0;">
+		<button class="button-49" onclick="location.href='/rrs/pages/product_detail'">Tạo đơn mới</button>
+		<button class="button-49" ng-click="delete(detail.order_id)" ng-if="1==detail.status">Xóa đơn</button>
+		<button class="button-49" ng-click="put(detail)" ng-if="2>detail.status">cập nhật</button>
+	</div>
+</div>
+
+<div class="mt-1 col-lg-5">
+
+	<!-- Search filter -->
+	<form class="form">
+		<input type="hidden" ng-model="fil.$search.orderBy">
+		<div class="group mb-3">
+			<input type="text" class="fw-bold" required
+				ng-model="fil.$search.address" name="name"> <i
+				class="fs-3 fa-solid {{fil.$search.sort ? 'text-primary fa-circle-dot' : 'text-secondary fa-circle-notch'}}"
+				ng-click="fil.$search.sort=!fil.$search.sort"
+				title="Sắp theo theo ngày tạo"></i> <span class="highlight"></span>
+			<span class="bar"></span> <label class="text-end"
+				style="width: calc(100% - 3rem) !important;">Tìm theo địa
+				chỉ</label>
+		</div>
+	</form>
+
+	<!-- product -->
+	<div
+		class="overflow-auto scroll-y d-flex flex-wrap border-top border-bottom border-success"
+		style="max-height: 100vh;">
+		<div style="margin: auto; width: 100%;"
+			ng-dblclick="readDetails(e.order_id)"
+			ng-repeat="(i,e) in data1 | sort:'order.regTime':fil.$search.sort | limitTo: 6:fil2.page*6">
+			<div class="w-100 row mt-3 mb-3 border-top border-bottom p-1 p-lg-3">
+				<!-- default image -->
+				<div class="col-sm-4 position-relative">
+					<div class="w-100 ar16x10 mt-3"
+						ng-if="1 > e.images.length || !e.images.length">
+						<img class="fit-img" style="object-fit: cover;"
+							ng-src="{{getImage('cartDefault.png')}}" alt="default.png"
+							title="Nội dung này chưa có ảnh">
+						<div class="text-center">
+							<label class="w-100 text-nowrap overflow-auto scroll-x">{{(e.status
+								| hasAny:detailStatus:'id').name}}</label>
+						</div>
+					</div>
+					<span class="fs-3 position-absolute top-0 bg-warning badge"
+						style="right: .5em;" ng-bind="e.order.order_details.length"></span>
+				</div>
+				<div class="col-sm-8 fs-5">
+					<p class="text-muted text-end">{{e.order.regTime |
+						dateRelative:'LLLL'}}</p>
+					<div class="position-relative">
+						<h3>
+							<strong>Hóa đơn</strong> (<u>ODT{{e.order_id}}</u>)
+						</h3>
+						<hr class="m-1">
+						<label class="fw-bold">Mô tả:</label>
+						<p class="overflow-auto scroll-y"
+							style="max-height: 80px; margin: 0;">{{e.descript}}</p>
+					</div>
+				</div>
+				<div class="col-lg-12">
+					<hr class="m-1">
+					<label class="fw-bold">Địa chỉ:</label>
+					<p class="overflow-auto text-nowrap scroll-x">{{e.order.address}}</p>
+					<hr class="m-1">
+					<p class="overflow-auto text-nowrap scroll-x">
+						<strong>Tổng giá:</strong>
+						<!-- trạng thái < 2 => chưa giao hàng, vẫn được tính sale -->
+						<span> {{(e.order.order_details |
+							sum:'oldPrice':'quantity') | number}} </span>
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- pagination -->
+	<div class="mt-2 m-auto">
+		<nav aria-label="Page navigation example" ng-if="fil2.size > 1">
+			<ul class="pagination justify-content-center">
+				<li class="page-item"
+					ng-click="fil2.page= fil2.page>0?fil2.page-1:0"><a
+					class="page-link" href="" aria-label="Previous"> <span
+						aria-hidden="true">&laquo;</span>
+				</a></li>
+				<li class="page-item d-flex overflow-auto">
+					<div class="" ng-click="fil2.page=i"
+						ng-repeat="(i,e) in range(fil2.size)">
+						<a class="page-link" href="" aria-label="Previous">{{e}}</a>
+					</div>
+				</li>
+				<li class="page-item"
+					ng-click="fil2.page= fil2.size>fil2.page?fil2.page+1:fil2.size">
+					<a class="page-link" href="" aria-label="Next"> <span
+						aria-hidden="true">&raquo;</span>
+				</a>
+				</li>
+			</ul>
+		</nav>
+	</div>
+</div>

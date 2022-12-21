@@ -1,0 +1,111 @@
+{
+    "descript": "Dự án tốt nghiệp thuộc nhóm Lovepink, với đề tài \"rao vặt online\", trang web yêu cầu hiển thị các sản phẩm và đơn hàng được rao vặt. Hệ thống có chức năng quản lý(thêm, xem, sửa, xóa) thông tin dữ liệu theo tài khoản được phân quyền, thông tin mua bán và thống kê doanh số dữ liệu theo từng tháng.",
+    "mesContact" : "Thông tin liên hệ tới các thành viên nhóm truy cập phần sau đây",
+    "members": [
+        {
+            "name": "Bùi Quốc Thịnh",
+            "image": "http://localhost:8080/data/images/account/sizuka.jpg",
+            "references": [
+                {
+                    "icon": "fa-regular fa-z text-info",
+                    "title": "zalo",
+                    "href": ""
+                },
+                {
+                    "icon": "fa-solid fa-envelope text-info",
+                    "title": "email",
+                    "href": "mailto:"
+                },
+                {
+                    "icon": "fa-brands fa-facebook text-info",
+                    "title": "facebook",
+                    "href": "https://www.facebook.com/baegookseong"
+                }
+            ]
+        },
+        {
+            "name": "Ca Thành Nhân",
+            "image": "http://localhost:8080/data/images/account/nobita.jpg",
+            "references": [
+                {
+                    "icon": "fa-regular fa-z text-info",
+                    "title": "zalo",
+                    "href": ""
+                },
+                {
+                    "icon": "fa-solid fa-envelope text-info",
+                    "title": "email",
+                    "href": "mailto:"
+                },
+                {
+                    "icon": "fa-brands fa-facebook text-info",
+                    "title": "facebook",
+                    "href": ""
+                }
+            ]
+        },
+        {
+            "name": "Hồ Nguyên Quốc",
+            "image": "http://localhost:8080/data/images/account/doremon.jpg",
+            "references": [
+                {
+                    "icon": "fa-regular fa-z text-info",
+                    "title": "zalo",
+                    "href": ""
+                },
+                {
+                    "icon": "fa-solid fa-envelope text-info",
+                    "title": "email",
+                    "href": "mailto:"
+                },
+                {
+                    "icon": "fa-brands fa-facebook text-info",
+                    "title": "facebook",
+                    "href": ""
+                }
+            ]
+        },
+        {
+            "name": "Nguyễn Bá Hoàng",
+            "image": "http://localhost:8080/data/images/account/dekisugi.jpg",
+            "references": [
+                {
+                    "icon": "fa-regular fa-z text-info",
+                    "title": "zalo",
+                    "href": ""
+                },
+                {
+                    "icon": "fa-solid fa-envelope text-info",
+                    "title": "email",
+                    "href": "mailto:"
+                },
+                {
+                    "icon": "fa-brands fa-facebook text-info",
+                    "title": "facebook",
+                    "href": ""
+                }
+            ]
+        },
+        {
+            "name": "Ngô Duy Hòa",
+            "image": "http://localhost:8080/data/images/account/xeko.jpg",
+            "references": [
+                {
+                    "icon": "fa-regular fa-z text-info",
+                    "title": "zalo",
+                    "href": ""
+                },
+                {
+                    "icon": "fa-solid fa-envelope text-info",
+                    "title": "email",
+                    "href": "mailto:hoandps18107@fpt.edu.vn"
+                },
+                {
+                    "icon": "fa-brands fa-facebook text-info",
+                    "title": "facebook",
+                    "href": "https://www.facebook.com/duyhoa.0202"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymleaf.org" th:replace="~{/index::dynamic(~{::main})}">
+<head>
+<meta charset="UTF-8">
+<title>QUẢN LÝ TÀI KHOẢN</title>
+</head>
+<body>
+<main class="container-fluid" ng-app="app" ng-controller="control">
+
+<!-- SHOW CONTENT -->
+<div class="row flex-wrap align-items-center justify-content-end">
+	<div class="col-xl-auto m-2">
+		<h3 class="text-warning">Quản lý đơn hàng được giao</h3>
+	</div>
+	<div class="col-xl-2 m-2 ms-auto">
+		<strong>Số lượng</strong>&nbsp;<u>{{ fil.size=(data
+			|filter:{status:fil.status}).length }}</u>
+	</div>
+	<div class="col-xl-2 m-2">
+		<select class="form-control" ng-model="fil.status" ng-init="fil.status='1'">
+			<option value="{{s.id}}" ng-repeat="(i,s) in status" ng-if="s.id>0">{{s.name}}</option>
+		</select>
+	</div>
+	<div class="col-xl-2 m-2 text-end">
+		<button class="button-29 ms-2" style="width:100%; height: 2.45rem;"
+			ng-click="put()">Cập nhật {{newStatus.length}} đơn hàng</button>
+	</div>
+
+	<div class="mt-3 border overflow-auto scroll scroll-y"
+		id="cateProduct" style="max-height: 90vh;">
+
+		<div class="mt-3 mb-3" ng-repeat="e in data | filter:{status:fil.status} | orderBy:'-order.regTime'">
+			<div class="badge-cus" style="width: 12rem;" ng-if="e.status2">
+				<div class="badge__label">{{ (status | filter:{id:e.status2})[0].name }}</div>
+			</div>
+			<table class="table table-bordered bg-light w-100 text-center">
+				<tr>
+					<th>Thời gian</th>
+					<td class="text-end" colspan="2">{{e.order.regTime | dateRelative: 'LLLL'}}</td>
+				</tr>
+				<tr>
+					<th>Địa chỉ</th>
+					<td class="text-end" colspan="2">{{e.order.address}}</td>
+				</tr>
+				<tr>
+					<th>Mô tả</th>
+					<td class="text-end" colspan="2">
+						<input type="text" class="form-control text-end {{fil.status>2 ? 'bg-secondary bg-opacity-25' : 'bg-transparent'}}" ng-model="e.descript" ng-disabled="fil.status>2">
+					</td>
+				</tr>
+				<tr>
+					<th>Mã đơn hàng</th>
+					<th>Trạng thái</th>
+					<th>tài khoản</th>
+				</tr>
+				<tr>
+					<td>{{e.order_id}}</td>
+					<td>
+						<select class="form-control text-center {{fil.status>2 ? 'bg-secondary bg-opacity-25' : 'bg-transparent'}}" ng-disabled="fil.status>2"
+							ng-model="e.status2" ng-change="appendStatus(e)" ng-init="e.status2=fil.status">
+							<option value="{{s.id}}" ng-repeat="(i,s) in status" ng-if="s.id>0">{{s.name}}</option>
+						</select>
+					</td>
+					<td>{{e.order.account_id}}</td>
+				</tr>
+
+			</table>
+		</div>
+
+		<div class="w-100 mt-3 mb-3" ng-if="!data.length">
+			<h1 class="text-center text-warning">ĐÃ HOÀN THÀNH, HIỆN CHƯA CÓ ĐƠN HÀNG MỚI</h1>
+		</div>
+	</div>
+
+</div>
+
+<!-- ANOTHER COMPONENTS -->
+<div class="row">
+
+	<!-- Partners with website Đặc Sản Miền Trung -->
+	<div th:replace="@{/components/_partners.htm}"></div>
+	
+	<!-- Infomation -->
+	<div th:replace="@{/components/_ours-info.htm}"></div>
+	
+	<!-- Footer -->
+	<footer th:replace="@{/components/_footer.htm}"></footer>
+</div>
+
+<!-- SHOW MESSAGE -->
+<div th:replace="@{/components/_message.htm}"></div>
+<script>
+    const app = angular.module('app', ['ngRoute']);
+    var serverIO = 'http://localhost:8080';
+    moment.locale('vi');
+
+    app.filter('dateRelative', () => {
+        return (date, format) => `${moment(date).format(format)} (${moment(date).fromNow()})`
+    })
+    
+    app.controller('control',($scope, $http)=>{
+        (async () => {
+            $scope.newStatus = [];
+        	
+        	// get info
+        	$http.get(getLink(serverIO,'rest/dir/documents/ourInf.json')).then(r => {
+            	$scope.info = r.data
+            }).catch(e => console.error(e.data ? e.data.message : e));
+        	
+            // get all partners
+            $http.get(getLink(serverIO,'rest/dir/documents/partners.json')).then(r => {
+                if(r.status=szzvzs=200) $scope.partners = r.data
+            }).catch(e => console.error(e.data ? e.data.message : e));
+
+            // get all partners
+            $http.get(getLink(serverIO,'rest/dir/documents/detailStatus.json')).then(r => {
+                if(r.status=szzvzs=200) $scope.status = r.data
+            }).catch(e => console.error(e.data ? e.data.message : e));
+
+            // get order_status by role SHIPPER
+            $http.get(getLink(serverIO,'rest/status/shipper?id=[[${#request.remoteUser}]]')).then(
+                r => $scope.data = r.data
+            ).catch(e => console.error(e.data ? e.data.message : e));
+            
+        })();
+
+        $scope.appendStatus = (e) => {
+            for(i in $scope.newStatus) 
+                if($scope.newStatus[i].order_id==e.order_id)
+                    $scope.newStatus.splice(i,1)
+
+            if(!e.descript && e.status2==2)e.descript='Đơn hàng đang được giao tới'
+            if(!e.descript && e.status2==3)e.descript='Shipper đã giao cho khách'
+            if(!e.descript && e.status2==4)e.descript='Đơn hàng bị hủy'
+            $scope.newStatus.push(e);
+        };
+
+        $scope.put = () => {
+            let path = getLink(serverIO,'rest/status');
+            for(i = 0; i < $scope.newStatus.length; i++) {
+                let e = $scope.newStatus[i]
+                let tempStatus = e.status;
+                e.status=Number(e.status2);
+                $http.put(path,e).then(r=>{
+                    $scope.newStatus.splice(i--,1);
+                }).catch(err=>{console.log(err);e.status=tempStatus});
+            }
+            showToast(`<span class="text-success">Cập nhật trạng thái</span>`, `Đã cập nhật ${$scope.newStatus.length} trạng thái đơn hàng.`)
+            $scope.newStatus.length=0;
+        }
+    });
+</script>
+</main>
+</body>
+</html>

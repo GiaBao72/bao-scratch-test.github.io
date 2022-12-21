@@ -1,0 +1,34 @@
+<h3 class="m-3 text-warning">Tổng doanh thu</h3>
+<div
+	class="m-lg-5 m-sm-3 d-flex flex-wrap justify-content-around text-center">
+	<div class="p-1 ps-3 pe-3 border border-info rounded-3">
+		<strong>Ít nhất</strong><br> Thời gian <u>{{stc.min.month}}</u> -
+		bán được <u>{{stc.min.total | number}}đ</u>
+	</div>
+	<div class="p-1 ps-3 pe-3 border border-info rounded-3">
+		<strong>Nhiều nhất</strong><br> Thời gian <u>{{stc.max.month}}</u>
+		- bán được <u>{{stc.max.total | number}}đ</u>
+	</div>
+	<div class="p-1 ps-3 pe-3 border border-info rounded-3">
+		<strong>Trung bình</strong><br> trung bình bán được <u>{{stc.avg.total
+			| number}}đ</u> cho <u>{{stc.avg.month}}</u> tháng
+	</div>
+</div>
+<div class="ms-auto d-flex align-items-center overflow-auto scroll">
+	<div class="form-switch text-nowrap">
+		<input
+			class="form-check-input {{fil.s==undefined ? 'bg-danger' : fil.s ? 'bg-light' : 'bg-primary'}}"
+			type="checkbox" role="switch" id="filSort" ng-model="fil.s">
+		<label class="form-check-label" for="filSort">{{fil.s==undefined
+			? '' : fil.s ? 'giảm' : 'tăng'}}</label> <a href="" class="text-danger"
+			ng-click="fil.s=undefined" ng-if="fil.s!=undefined">mặc định</a>
+	</div>
+	<input class="m-1 form-control text-center w-25" type="number" min="0"
+		max="{{data.lenght}}" placeholder="số lượng" ng-model="fil.length">
+	<input class="m-1 form-control text-center" type="datetime-local"
+		ng-model="range.st"> <input
+		class="m-1 form-control text-center" type="datetime-local"
+		ng-model="range.et">
+	<button class="button-29" style="height: 2.5rem;" ng-click="refresh()">Lọc</button>
+</div>
+<div id="showChart" style="min-width: 960px;"></div>

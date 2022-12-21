@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymleaf.org"
+	th:replace="~{/index::dynamic(~{::main})}">
+<head>
+<meta charset="UTF-8">
+<title>QUẢN LÝ TÀI KHOẢN</title>
+</head>
+<body>
+	<!-- CONTENTS -->
+	<main class="container-fluid" ng-app="app" ng-controller="control">
+
+		<!-- SHOW CONTENT -->
+		<div class="row border" id="detailProduct">
+
+			<!-- NAV CART-CONTROL -->
+			<nav class="navbar navbar-expand-lg">
+				<button class="navbar-toggler" type="button"
+					data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+					aria-controls="navbarSupportedContent" aria-expanded="false"
+					aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarSupportedContent">
+					<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+						<li class="breadcrumb">
+						<li class="breadcrumb-item"><a href="/rrs">Trang chủ</a></li>
+						<li class="breadcrumb-item active" aria-current="page">Quản
+							lý đơn hàng</li>
+						</li>
+					</ul>
+					<div class="d-flex align-items-center" role="search">
+						<div class="me-3 text-nowrap fs-5" ng-if="data.length">
+							<input type="hidden" ng-model="fil.$search.swithAllCart">
+							<button class="button-29" type="button"
+								data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart"
+								aria-controls="offcanvasCart" ng-if="cartShipper.length">
+								<b>Xem:</b>{{cartShipper.length}}
+							</button>
+							<button class="button-29" ng-if="1>status"
+								ng-click="appendAllCart(fil.$search.swithAllCart=!fil.$search.swithAllCart)">{{fil.$search.swithAllCart
+								? 'Bỏ' : 'Chọn'}} tất cả</button>
+						</div>
+						<div class="me-2 text-nowrap fs-5">
+							<b>Số lượng đơn</b>: <span>{{data.length}}</span>
+						</div>
+						<div class="form ms-2 me-2">
+							<div class="group mb-0 text-center">
+								<input type="text" class="fw-bold p-0 fs-5" required
+									ng-model="fil.$search.text" name="name"> <span
+									class="highlight"></span> <span class="bar"></span> <label
+									class="text-nowrap w-100">Mã ODT</label>
+							</div>
+						</div>
+						<select class="form-control text-center" ng-model="status"
+							ng-init="status='-1'"
+							ng-change="get(status);fil.page=undefined;">
+							<option value="-1">Đơn hàng mới</option>
+							<option value="{{x.id}}" ng-repeat="x in detailStatus"
+								ng-bind="x.name"></option>
+						</select>
+					</div>
+				</div>
+			</nav>
+
+			<!-- SHOW CART DETAIL -->
+			<div class="w-100" ng-if="data.length">
+				<!-- Prepare data -->
+				<div class="d-none">
+					<input type="hidden" ng-model="fil.$search.status"
+						ng-init="fil.$search.status=undefined"> {{fil.size=((data
+					| filter: {id:fil.$search.text}).length/6 | number:0)}} <input
+						type="hidden" ng-init="fil.$cate.id=undefined"> <input
+						type="hidden" ng-init="fil.page=0">
+				</div>
+
+				<!-- order_cart -->
+				<div class="overflow-auto scroll-y d-flex flex-wrap"
+					style="max-height: 85vh;">
+					<div class="accordion accordion-flush bg-opacity-75">
+						<div class="accordion-item" id="accordionODT{{e.id}}"
+							ng-repeat="(i,e) in data | filter: {id:fil.$search.text} | orderBy:'-regTime' | limitTo: 6:fil.page*6">
+							<h2 class="accordion-header">
+								<div
+									class="w-100 row mt-3 mb-3 border-top border-bottom p-1 p-lg-3">
+									<!-- default image -->
+									<div class="col-lg-4 position-relative">
+										<div class="w-100 ar16x10 mt-3"
+											ng-if="1 > e.images.length || !e.images.length">
+											<img class="fit-img" style="object-fit: cover;"
+												ng-src="{{getImage('cartDefault.png')}}" alt="default.png"
+												title="Nội dung này chưa có ảnh">
+											<div class="text-center fs-5">
+												<label class="w-100 text-nowrap">Tên người đặt hàng</label>
+											</div>
+										</div>
+										<span class="position-absolute top-0 bg-warning badge"
+											style="right: .5em;" ng-bind="e.order_details.length"></span>
+									</div>
+
+									<!-- Show data -->
+									<div class="col-lg-8 fs-5 position-relative">
+										<p class="text-muted text-end">{{e.regTime |
+											dateRelative:'LLLL'}}</p>
+										<div class="position-relative">
+											<span class="position-absolute top-0" style="right: 1rem;"><strong>Khách
+													mua</strong>: {{e.account_id}}</span>
+											<h3>
+												<strong>Hóa đơn</strong> (<u>ODT{{e.id}}</u>)
+											</h3>
+											<hr class="m-1">
+											<label class="overflow-hidden"
+												style="text-overflow: ellipsis;"> <b>Địa
+													chỉ:&nbsp;</b>{{e.address ? e.address : 'chưa nhập địa chỉ'}}
+											</label>
+											<hr class="m-1">
+											<div class="d-inline-block">
+												<strong>Tổng:</strong>
+												<!-- trạng thái < 2 => chưa giao hàng, vẫn được tính sale -->
+												<div class="ms-5 badge-cus"
+													style="width: 100px; height: 100px;">
+													<label class="badge__label">{{(e.order_details |
+														sum:'oldPrice':'quantity') | number}}</label>
+												</div>
+											</div>
+											<div class="ms-2 d-inline-block">
+												<strong>mặt hàng:</strong> <span>{{e.order_details.length}}</span>
+											</div>
+											&HorizontalLine;
+											<div class="ms-2 d-inline-block">
+												<strong>số lượng</strong> <span>{{(e.order_details |
+													map:'quantity') | total}}</span>
+											</div>
+										</div>
+										<div class="position-absolute d-flex"
+											style="right: 0; bottom: 0;">
+											<button class="button-29 collapsed" type="button"
+												data-bs-toggle="collapse"
+												data-bs-target="#collapseODT{{e.id}}" aria-expanded="false"
+												aria-controls="collapseODT{{e.id}}"
+												title="Xem mã đơn hàng {{e.id}}">XEM ĐƠN
+												ODS{{e.id}}</button>
+											<input type="checkbox" class="ms-2 button-89"
+												style="height: 3rem; width: 3rem;" ng-click="appendCart(e)"
+												ng-checked="isChecked(e.id)" ng-if="1>status">
+										</div>
+									</div>
+								</div>
+							</h2>
+							<div id="collapseODT{{e.id}}"
+								class="accordion-collapse collapse"
+								aria-labelledby="flush-headingOne"
+								data-bs-parent="#accordionODT{{e.id}}">
+								<div class="accordion-body">
+									<h3 class="text-center text-danger"
+										ng-if="!e.order_details.length">Đơn hàng chưa có sản
+										phẩm</h3>
+									<!-- show children -->
+									<div ng-if="e.order_details.length">
+										<table class="table table-striped text-center">
+											<thead>
+												<tr>
+													<th>HÌNH ẢNH</th>
+													<th>MÃ SẢN PHẨM</th>
+													<th>TÊN SẢN PHẨM</th>
+													<th>ĐƠN GIÁ SP</th>
+													<th>GIẢM GIÁ</th>
+													<th>ĐƠN GIÁ MUA</th>
+													<th>SỐ LƯỢNG</th>
+													<th>TỔNG</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr ng-repeat="x in e.order_details"
+													title="{{x.product.descript}}">
+													<td style="width: 128px;"><img
+														class="fit-img rounded-3"
+														ng-src="{{getImage(x.product.images.length>0?x.product.images[0]:'default.png')}}"
+														alt="{{x.product.name}}"></td>
+													<td>{{x.product.id}}</td>
+													<td>{{x.product.name}}</td>
+													<td>{{x.product.cosPrice|number}}</td>
+													<td><span class="badge bg-warning">{{x.product.proPrice}}%</span></td>
+													<td>{{x.oldPrice|number}}</td>
+													<td>{{x.quantity}}</td>
+													<td>{{(x.oldPrice * x.quantity)|number}}</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- pagination -->
+				<nav aria-label="Page navigation example" ng-if="fil.size > 1">
+					<ul class="pagination justify-content-center">
+						<li class="page-item"
+							ng-click="fil.page= fil.page>0?fil.page-1:0"><a
+							class="page-link" href="" aria-label="Previous"> <span
+								aria-hidden="true">&laquo;</span>
+						</a></li>
+						<li class="page-item d-flex overflow-auto">
+							<div class="" ng-click="fil.page=i"
+								ng-repeat="(i,e) in range(fil.size)">
+								<a class="page-link" href="" aria-label="Previous">{{e}}</a>
+							</div>
+						</li>
+						<li class="page-item"
+							ng-click="fil.page= fil.size>fil.page?fil.page+1:fil.size">
+							<a class="page-link" href="" aria-label="Next"> <span
+								aria-hidden="true">&raquo;</span>
+						</a>
+						</li>
+					</ul>
+				</nav>
+			</div>
+
+			<div class="w-100 mt-3 mb-3" ng-if="!data.length">
+				<h1 class="text-center text-warning">ĐÃ HOÀN THÀNH, HIỆN CHƯA
+					CÓ ĐƠN HÀNG MỚI</h1>
+			</div>
+		</div>>
+			
+		<!-- ANOTHER COMPONENTS -->
+		<div class="row">
+		
+			<!-- Partners with website Đặc Sản Miền Trung -->
+			<div th:replace="@{/components/_partners.htm}"></div>
+			
+			<!-- Infomation -->
+			<div th:replace="@{/components/_ours-info.htm}"></div>
+			
+			<!-- Footer -->
+			<footer th:replace="@{/components/_footer.htm}"></footer>
+		</div>
+		
+		<!-- SHOW MESSAGE -->
+		<div th:replace="@{/components/_message.htm}"></div>
+		<!-- SHOW CART SELECTED OFF CANVAS -->
+		<div class="offcanvas offcanvas-start" tabindex="-1"
+			id="offcanvasCart" aria-labelledby="offcanvasCartLabel"
+			ng-if="cartShipper.length" style="min-width: 50%;">
+			<div class="offcanvas-header">
+				<h5 class="offcanvas-title" id="offcanvasCartLabel">Chia đơn
+					hàng</h5>
+				<div class="ms-auto me-3">
+					<select class="fw-bold form-control button-29"
+						ng-model="fil.$storage.setFor"
+						ng-change="setAllforShiper(fil.$storage.setFor)">
+						<option class="bg-danger text-center" value>GIAO ĐƠN CHO</option>
+						<option class="text-center" value="{{u.username}}"
+							ng-repeat="u in accounts">{{'('+u.username+') -
+							'+u.name}}</option>
+					</select>
+				</div>
+				<button class="button-29" ng-click="createStatus()">Cập
+					nhật</button>
+				<button type="button" class="btn-close" data-bs-dismiss="offcanvas"
+					aria-label="Close"></button>
+			</div>
+			<div class="offcanvas-body">
+				<table
+					class="mt-3 table-bordered border-info border-1 w-100 text-center text-nowrap"
+					ng-repeat="d in cartShipper">
+					<tr>
+						<td colspan="4">{{d.regTime | dateRelative : 'LLLL'}}</td>
+					</tr>
+					<tr>
+						<td class="w-25" rowspan="4"><img
+							class="fit-img ar16x9 o-fit-cover"
+							ng-src="{{getImage('cartDefault.png')}}"></td>
+						<th class="w-25">Mã đơn hàng</th>
+						<th class="text-center" colspan="2">Địa chỉ</th>
+					</tr>
+					<tr>
+						<td>{{d.id}}</td>
+						<td class="text-center" colspan="2">{{d.address ? d.address
+							: 'UNKNOW'}}</td>
+					</tr>
+					<tr>
+						<th>Khách mua</th>
+						<th class="w-25">Giao cho</th>
+						<th class="w-25">Tổng</th>
+					</tr>
+					<tr>
+						<td>{{d.account_id}}</td>
+						<td><select class="form-control" ng-model="d.shipper_id">
+								<option value="{{u.username}}" ng-repeat="u in accounts">
+									{{'('+u.username+') - '+u.name}}</option>
+						</select></td>
+						<td class="text-danger">{{(d.order_details |
+							sum:'oldPrice':'quantity') | number}}</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+
+		<script>
+               const app = angular.module('app', ['ngRoute']);
+               var serverIO = 'http://localhost:8080';
+               moment.locale('vi');
+
+               app.filter('dateRelative', () => {
+                   return (date, format) => `${moment(date).format(format)} (${moment(date).fromNow()})`
+               })
+
+               app.filter('sum', () => {
+                   return (arr, cos, qty) => {
+                       if(!arr) return 0;
+                       let  amount = 0;
+                       if(!arr.length) return amount;
+                       for(e of arr) amount+=(eval(`e.${cos}`)*eval(`e.${qty}`));
+                       return amount;
+                   }
+               })
+
+               app.filter('total', () => {
+                   return (arr) => {
+                       let total = 0;
+                       for(x of arr) total+=x;
+                       return total;
+                   }
+               })
+
+               app.filter('sort', () => {
+                   return (arr, col, desc) => {
+                       if(!arr) return
+                       return desc 
+                           ? arr.sort((x,y) => eval(`x.${col}`).localeCompare(eval(`y.${col}`)))
+                           : arr.sort((x,y) => eval(`y.${col}`).localeCompare(eval(`x.${col}`)));
+                   }
+               })
+
+               app.filter('hasAny', () => {
+                   return (value, arr, col) => {
+                       if(!arr) return;
+                       for(x of arr) if(eval(`x.${col}`) == value)
+                           return x;
+                       return null;
+                   }
+               });
+           
+               app.filter('map', () => {
+                   return (arr, col) => arr ? arr.map(x=>x[col]) : map;
+               })
+
+               app.controller('control',($scope, $http)=>{
+                   (async () => {
+   		        	
+   		        	   // get info
+	   		           $http.get(getLink(serverIO,'rest/dir/documents/ourInf.json')).then(r => {
+	   		               $scope.info = r.data
+	   		           }).catch(e => console.error(e.data ? e.data.message : e));
+   		        	
+                       $scope.cartShipper = [];                        
+                       // get all partners
+                       $http.get(getLink(serverIO,'rest/dir/documents/partners.json')).then(r => {
+                           if(r.status=szzvzs=200) $scope.partners = r.data
+                       }).catch(e => console.error(e.data ? e.data.message : e));
+
+                       // get all detail status
+                       $http.get(getLink(serverIO,'rest/dir/documents/detailStatus.json')).then(r => {
+                           if(r.status==200) $scope.detailStatus = r.data
+                       }).catch(e => console.error(e.data ? e.data.message : e));
+
+                       // get order_status by status
+                       $http.get(getLink(serverIO,`rest/orders/status?${0<=$scope.status?'s='+$scope.status:''}`)).then(
+                           r => $scope.data = r.data
+                       ).catch(e => console.error(e.data ? e.data.message : e));
+                       
+                       // get account by role SHIPPER
+                       $http.get(getLink(serverIO,`rest/accounts/role?r=SHIPPER`)).then(
+                           r => $scope.accounts = r.data
+                       ).catch(e => console.error(e.data ? e.data.message : e));
+                       
+                       
+                   })();
+
+                   $scope.range = (size) => {
+                       var arr = [];
+                       for (let i = 0; i <= size; arr.push(++i));
+                       return arr;
+                   }
+
+                   $scope.isChecked = (id) => {
+                       return getIndex('id', id, $scope.cartShipper) > -1;
+                   }
+
+                   $scope.appendAllCart = (toggle) => {
+                       
+                       $scope.cartShipper.length = 0;
+                       if(toggle) for(x of $scope.data) $scope.appendCart(x);
+                   }
+
+                   $scope.appendCart = (e) => {
+                       let i = getIndex('id', e.id, $scope.cartShipper);
+                       if(i<0) $scope.cartShipper.push(e);
+                       else $scope.cartShipper.splice(i,1);
+                   }
+
+                   // set all cartShipper by acccount id
+                   $scope.setAllforShiper = (id) => {
+                       for(x of $scope.cartShipper) x.shipper_id = !id ? undefined : id;
+                   }
+
+                   // post status to the server
+                   $scope.createStatus = () => {
+                       var status = [];
+                       let size = $scope.cartShipper.length;
+                       
+                       for(let i = 0; i < $scope.cartShipper.length; i++) if($scope.cartShipper[i].shipper_id) {
+                           var x = $scope.cartShipper.splice(i--,1)[0];
+                           let count =0;
+                           $http.post(getLink(serverIO,'rest/status'),{
+                               order_id: x.id,
+                               account_id: x.shipper_id,
+                               status: 1,
+                               descript: `Hệ thống xác nhận: (${moment(Date.now()).format('LLLL')})` ,
+                           }).then(r => {
+                               let i = getIndex('id', r.data.order_id,$scope.data);
+                               if(i>-1) $scope.data.splice(i,1); ++count;
+                           }).catch(e => {
+                               console.log(e.data ? e.data.message:e);
+                               $scope.cartShipper.unshift(x);
+                           });
+                       }
+                       showToast(`Cập nhật trạng thái đơn hàng`,`Đã cập nhật <u>${size - $scope.cartShipper.length}</u> đơn hàng.`);
+                   }
+                               
+                   // prepare image
+                   $scope.getImage = function(imgName) {
+                       if(imgName) return imgName.startsWith('http') || imgName.startsWith('blob') ? imgName.trim() : getLink(serverIO, 'data/images/product', imgName);
+                       return getLink(serverIO, 'data/images/product/default.png');
+                   }
+
+                   $scope.get = (s) => {
+                       $http.get(getLink(serverIO,`rest/orders/status?${0<=s?'s='+s:''}`)).then(r=>{
+                           $scope.data = r.data
+                       }).catch(e => console.error(e.data ? e.data.message : e));
+                   }
+               });
+           </script>
+	</main>
+	
+</body>
+</html>

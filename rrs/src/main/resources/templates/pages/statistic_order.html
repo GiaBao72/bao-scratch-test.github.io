@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymleaf.org"
+	th:replace="~{/index::dynamic(~{::main})}">
+<head>
+<meta charset="UTF-8">
+<title>THỐNG KÊ DỮ LIỆU</title>
+</head>
+<body style="font-family: 'Merienda', monospace">
+	<main class="container-fluid" ng-app="app" ng-controller="control">
+
+	<!-- SHOW CONTENT -->
+	<div class="row" id="statistic">
+
+		<h1 class="mt-lg-5 mt-md-3 mt-sm-1 text-center text-warning">THỐNG KÊ DỮ LIỆU</h1>
+
+		<!-- NAV CART-CONTROL -->
+		<nav class="navbar navbar-expand-lg">
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<a class="navbar-brand" href="#/home"> THỐNG KÊ </a>
+				<ul class="ms-auto navbar-nav navbar-nav-scroll">
+					<li class="nav-item"><a class="nav-link" href="#/s_product"> Sản phẩm bán được </a></li>
+					<li class="nav-item"><a class="nav-link" href="#/s_order"> Số đơn hàng </a></li>
+					<li class="nav-item"><a class="nav-link" href="#/s_revenue"> Tổng doanh thu </a></li>
+				</ul>
+			</div>
+		</nav>
+
+		<!-- SHOW CHART -->
+		<div class="mt-3 col-12 mt-lg-3 overflow-auto" ng-view></div>
+	</div>
+
+	<!-- ANOTHER COMPONENTS -->
+	<div class="row">
+		<!-- Infomation -->
+		<div th:replace="@{/components/_ours-info.htm}"></div>
+		
+		<!-- Partners with website Đặc Sản Miền Trung -->
+		<div th:replace="@{/components/_partners.htm}"></div>
+		
+		<!-- SHOW MESSAGE -->
+		<div th:replace="@{/components/_message.htm}"></div>
+	</div>
+	
+	<!-- Footer -->
+	<footer th:replace="@{/components/_footer.htm}"></footer>
+
+	<script>
+              const app = angular.module('app', ['ngRoute']);
+              var serverIO = 'http://localhost:8080';
+
+              /* ____________________________________________________ config*/
+              app.config(function ($routeProvider) {
+                  $routeProvider.when(
+                      "/home", { templateUrl: "parts/statistic/home.htm"}
+                  ).when(
+                      "/s_product", { templateUrl: "parts/statistic/product_sold.htm", controller: "productCtrl"}
+                  ).when(
+                      "/s_order", { templateUrl: "parts/statistic/order_quantity.htm", controller: "orderCtrl"}
+                  ).when(
+                      "/s_revenue", { templateUrl: "parts/statistic/total_revenue.htm", controller: "revenueCtrl"}
+                  ).otherwise( // Others
+                      { redirectTo: "/home" }
+                  );
+              });
+
+              app.controller('control', ($scope, $http) => {
+                  
+                  $scope.fil = {};
+		        	
+	        	 // get info
+	        	 $http.get(getLink(serverIO,'rest/dir/documents/ourInf.json')).then(r => {
+	            	 $scope.info = r.data
+	             }).catch(e => console.error(e.data ? e.data.message : e));
+		        	
+
+                  // get all partners
+                  $http.get(getLink(serverIO,'rest/dir/documents/partners.json')).then(r => {
+                     	$scope.partners = r.data
+                  }).catch(e => console.error(e.data ? e.data.message : e));
+
+                  $http.get(getLink(serverIO,'rest/statistic/so?s=MIN_MAX')).then(r => {
+                  	$scope.range = r.data[0];
+                  	$scope.range.st = new Date($scope.range.st)
+                  	$scope.range.et = new Date($scope.range.et)
+                  }).catch(e => console.error(e.data ? e.data.message : e));
+
+                  $scope.chart = (data, label, colData, colSubtit) => {
+                      if(!data) return;
+                      var list = data.map(x => x[colData ? colData : 'quantity']);
+                      var colors = [], borders =[];
+                      var options = {
+                          scales: {
+                              y: {
+                                  beginAtZero: true
+                              }
+                          }
+                      };
+                      var datasets = [
+                          {
+                              label: label ? label : 'Số lượng',
+                              data: list,
+                              backgroundColor: colors,
+                              borderColor: borders,
+                              borderRadius: 0,
+                              borderWidth: 1
+                          }
+                      ];
+                      randomColor(data.length, colors, borders);
+                      chartSet('bar', data.map(x => x[colSubtit?colSubtit:'month']), options, ...datasets);
+                  }
+              });
+
+              app.controller('productCtrl', ($scope, $http) => {
+
+                  $scope.calculator = (data) => {
+                      let min = data.length ? data[0]: {quantity:0},
+                      max = {quantity:0}, avg = 0, qty;
+                      for(x of data) {
+                          avg+=qty=x.quantity;
+                          if(qty > max.quantity) max = x;
+                          else if (qty < min.quantity) min = x;
+                      }
+                      avg = {quantity:(avg = avg/data.length).toFixed(0), month:data.length};
+                      $scope.stc = {min:min, max:max, avg: avg};
+                  }
+                  
+                  $scope.get = (path, to, label) => {
+                      if(!path || !to) throw `Chưa có địa chỉ hoặc nơi lưu trữ!!!\npath=${path}\nto=${to}`
+                      $http.get(path).then(r => {
+                          $scope.chart($scope[to] = r.data, 'Số sản phẩm');
+                          $scope.fil.length=r.data.length;
+                          $scope.calculator(r.data);
+                      }).catch(e => console.error(e.data ? e.data.message : e));
+                  }
+
+                  (async () => {
+                  	
+                      // Lấy toàn bộ đơn hàng bán được theo tháng
+                      $scope.get(getLink(serverIO,'rest/statistic/so?s=QT_M'),'data')
+                  })();
+
+                  $scope.refresh = () => {
+                      let f = $scope.fil;
+                      let r = $scope.range;
+                      let st = moment(r.st).format('Y-MM-DD hh:mm:ss.SSS');
+                      let et = moment(r.et).format('Y-MM-DD hh:mm:ss.SSS');
+                      let path = getLink(serverIO,'rest/statistic',`so?s=QT_M&p=${f.length}&p&p&p=${st}&p=${et}&p=${f.s==undefined?'':f.s}`);
+                      $scope.get(path,'data')
+                  }
+
+              });
+
+              app.controller('orderCtrl',($scope, $http)=>{
+
+                  $scope.calculator = (data) => {
+                      let min = data.length ? data[0]: {quantity:0},
+                       max = {quantity:0}, avg = 0, qty;
+                      for(x of data) {
+                          avg+=qty=x.quantity;
+                          if(qty > max.quantity) max = x;
+                          else if (qty < min.quantity) min = x;
+                      }
+                      avg = {quantity:(avg = avg/data.length).toFixed(2), month:data.length};
+                      $scope.stc = {min:min, max:max, avg: avg};
+                  }
+
+                  $scope.get = (path, to, label) => {
+                      if(!path || !to) throw `Chưa có địa chỉ hoặc nơi lưu trữ!!!\npath=${path}\nto=${to}`
+                      $http.get(path).then(r => {
+                          $scope.chart($scope[to] = r.data, 'Số đơn hàng');
+                          $scope.fil.length=r.data.length;
+                          $scope.calculator(r.data);
+                      }).catch(e => console.error(e.data ? e.data.message : e));
+                  }
+
+                  (async () => {
+                      // Lấy toàn bộ đơn hàng bán được theo tháng
+                      $scope.get(getLink(serverIO,'rest/statistic/so?s=Q_M&p&p&p&p=2&p'),'data')
+                  })();
+
+                  $scope.refresh = () => {
+                      let f = $scope.fil;
+                      let r = $scope.range;
+                      let st = moment(r.st).format('Y-MM-DD hh:mm:ss.SSS');
+                      let et = moment(r.et).format('Y-MM-DD hh:mm:ss.SSS');
+                      let path = getLink(serverIO,'rest/statistic',`so?s=Q_M&p=${f.length}&p=${st}&p=${et}&p=2&p=${f.s==undefined?'':f.s}`);
+                      $scope.get(path,'data')
+                  }
+
+              });
+      
+              app.controller('revenueCtrl', ($scope, $http) => {
+                  $scope.calculator = (data) => {
+                      let min = data.length ? data[0]: {total:0},
+                      max = {total:0}, avg = 0, qty;
+                      for(x of data) {
+                          avg+=qty=x.total;
+                          if(qty > max.total) max = x;
+                          else if (qty < min.total) min = x;
+                      }
+                      avg = {total:(avg = avg/data.length).toFixed(0), month:data.length};
+                      $scope.stc = {min:min, max:max, avg: avg};
+                  }
+
+                  $scope.get = (path, to, label) => {
+                      if(!path || !to) throw `Chưa có địa chỉ hoặc nơi lưu trữ!!!\npath=${path}\nto=${to}`
+                      $http.get(path).then(r => {
+                          $scope.chart($scope[to] = r.data, 'Doanh thu', 'total');
+                          $scope.fil.length=r.data.length;
+                          $scope.calculator(r.data);
+                      }).catch(e => console.error(e.data ? e.data.message : e));
+                  }
+
+                  (async () => {
+                      // Lấy toàn bộ đơn hàng bán được theo tháng
+                      $scope.get(getLink(serverIO,'rest/statistic/so?s=QT_M'),'data')
+                  })();
+
+                  $scope.refresh = () => {
+                      let f = $scope.fil;
+                      let r = $scope.range;
+                      let st = moment(r.st).format('Y-MM-DD hh:mm:ss.SSS');
+                      let et = moment(r.et).format('Y-MM-DD hh:mm:ss.SSS');
+                      let path = getLink(serverIO,'rest/statistic',`so?s=QT_M&p=${f.length}&p&p&p=${st}&p=${et}&p=${f.s==undefined?'':f.s}`);
+                      $scope.get(path,'data')
+                  }
+              });
+
+              function chartSet(type, labels, options, ...datasets) {
+                  if(!showChart) return;
+                  while (showChart.firstChild) showChart.removeChild(showChart.lastChild);
+                  showChart.innerHTML = `<canvas class="bg-white bg-opacity-50 p-3 rounded-3 mb-3"></canvas>`
+
+                  new Chart(showChart.firstChild, {
+                      type: type,
+                      data: {
+                          labels: labels,
+                          datasets: datasets
+                      }, options: options
+                  });
+              }
+
+              function randomColor(size, colors, borders) {
+                  if(colors, borders) for (let i = 0; i < size; i++) {
+                      let color = Math.random() * 360;
+                      colors.push(`hsl(${color}, 60%, 80%, .9)`);
+                      borders.push(`hsl(${color}, 80%, 60%, 1)`);
+                  }
+              }
+               
+          </script>
+	</main>
+		
+</body>
+</html>

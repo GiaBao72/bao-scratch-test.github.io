@@ -1,0 +1,110 @@
+<nav aria-label="breadcrumb">
+	<ol class="breadcrumb">
+		<li class="breadcrumb-item"><a href="/rrs">Trang chủ</a></li>
+		<li class="breadcrumb-item active" aria-current="page">Danh sách
+			tổng ({{data1.length}})</li>
+	</ol>
+</nav>
+
+<h3 class="mt-lg-5 mt-md-3 mt-sm-1 text-center">Giỏ hàng cá nhân</h3>
+<div class="col-lg-12 border-bottom mb-3 pb-3"></div>
+
+<!-- status data => 1:prepare data - 2:shipping pack - 3:successfully - 4:failed -->
+<!-- PREPARE ORDER DATA -->
+<div class="w-100">
+	<!-- Prepare data -->
+	<div class="d-none">
+		<input type="hidden" ng-model="fil.$search.status"
+			ng-init="fil.$search.status=undefined"> {{data1 = (data |
+		filter:{status:fil.$search.status}) }} {{fil2.size=(data1.length/6 |
+		number:0)}} <input type="hidden" ng-init="fil2.$cate.id=undefined">
+		<input type="hidden" ng-init="fil2.page=0">
+	</div>
+
+	<!-- show data filter by status -->
+	<div class="m-2 mt-lg-3 d-flex justify-content-end flex-wrap">
+		<button class="m-1 button-89 text-primary"
+			onclick="location.href='#waiting'">Đơn chờ xác nhận</button>
+		<button class="m-1 button-89"
+			ng-click="fil.$search.status=e.id;fil2.page=0"
+			ng-repeat="e in detailStatus">{{e.name}}</button>
+	</div>
+
+	<!-- product -->
+	<div
+		class="overflow-auto scroll-y d-flex flex-wrap border-top border-bottom border-success"
+		style="max-height: 80vh;">
+		<div style="margin: auto; width: 100%;"
+			ng-repeat="(i,e) in data1 | sort:'order.regTime' | limitTo: 6:fil2.page*6">
+			<div class="w-100 row mt-3 mb-3 border-top border-bottom p-1 p-lg-3">
+				<!-- default image -->
+				<div class="col-lg-4 position-relative">
+					<div class="w-100 ar16x10 mt-3"
+						ng-if="1 > e.images.length || !e.images.length">
+						<img class="fit-img" style="object-fit: cover;"
+							ng-src="{{getImage('cartDefault.png')}}" alt="default.png"
+							title="Nội dung này chưa có ảnh">
+						<div class="text-center">
+							<label class="w-100 text-nowrap overflow-auto scroll-x">{{(e.status
+								| hasAny:detailStatus:'id').name}}</label>
+						</div>
+					</div>
+					<span class="fs-3 position-absolute top-0 bg-warning badge"
+						style="right: .5em;" ng-bind="e.order.order_details.length"></span>
+				</div>
+				<div class="col-lg-8 fs-5">
+					<p class="text-muted text-end">{{e.order.regTime |
+						dateRelative:'LLLL'}}</p>
+					<div class="position-relative">
+						<span class="position-absolute top-0" style="right: 1rem;"><strong>Shipper</strong>:
+							{{e.account_id}}</span>
+						<h3>
+							<strong>Hóa đơn</strong> (<u>ODT{{e.order_id}}</u>)
+						</h3>
+						<hr class="m-1">
+						<label class="fw-bold">Mô tả:</label>
+						<p class="overflow-auto scroll-y"
+							style="max-height: 80px; margin: 0;">{{e.descript}}</p>
+						<hr class="m-1">
+						<label class="fw-bold">Địa chỉ:</label>
+						<p class="overflow-auto text-nowrap scroll-x">{{e.order.address}}</p>
+						<hr class="m-1">
+						<p class="overflow-auto text-nowrap scroll-x">
+							<strong>Tổng giá:</strong>
+							<!-- trạng thái < 2 => chưa giao hàng, vẫn được tính sale -->
+							<span> {{(e.order.order_details |
+								sum:'oldPrice':'quantity') | number}} </span>
+						</p>
+						<div class="position-absolute" style="right: 0; bottom: 0;">
+							<a class="button-29" href="#/details/{{e.order.id}}"
+								title="Xem mã đơn hàng {{e.order.id}}">XEM ĐƠN HÀNG</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- pagination -->
+	<nav aria-label="Page navigation example" ng-if="fil2.size > 1">
+		<ul class="pagination justify-content-center">
+			<li class="page-item" ng-click="fil2.page= fil2.page>0?fil2.page-1:0">
+				<a class="page-link" href="" aria-label="Previous"> <span
+					aria-hidden="true">&laquo;</span>
+			</a>
+			</li>
+			<li class="page-item d-flex overflow-auto">
+				<div class="" ng-click="fil2.page=i"
+					ng-repeat="(i,e) in range(fil2.size)">
+					<a class="page-link" href="" aria-label="Previous">{{e}}</a>
+				</div>
+			</li>
+			<li class="page-item"
+				ng-click="fil2.page= fil2.size>fil2.page?fil2.page+1:fil2.size">
+				<a class="page-link" href="" aria-label="Next"> <span
+					aria-hidden="true">&raquo;</span>
+			</a>
+			</li>
+		</ul>
+	</nav>
+</div>

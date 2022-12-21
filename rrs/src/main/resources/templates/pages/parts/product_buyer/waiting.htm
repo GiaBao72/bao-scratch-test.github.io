@@ -1,0 +1,122 @@
+<nav aria-label="breadcrumb">
+	<ol class="breadcrumb">
+		<li class="breadcrumb-item"><a href="/rrs">Trang chủ</a></li>
+		<li class="breadcrumb-item"><a href="#/home">Đơn hàng</a></li>
+		<li class="breadcrumb-item active" aria-current="page">Đơn chờ
+			xác nhận ({{waitData.length}})</li>
+		<li class="ms-auto"><a href="#/home">Danh sách giỏ hàng&nbsp;<i
+				class="fa-solid fa-arrow-rotate-left"></i></a></li>
+	</ol>
+</nav>
+<div class="accordion accordion-flush bg-opacity-75">
+	<div class="accordion-item" id="accordionODT{{e.id}}"
+		ng-repeat="(i,e) in waitData | filter: {id:fil.$search.text} | orderBy:'-regTime' | limitTo: 6:fil.page*6">
+		<h2 class="accordion-header">
+			<div class="w-100 row mt-3 mb-3 border-top border-bottom p-1 p-lg-3">
+				<!-- default image -->
+				<div class="col-lg-4 position-relative">
+					<div class="w-100 ar16x10 mt-3"
+						ng-if="1 > e.images.length || !e.images.length">
+						<img class="fit-img" style="object-fit: cover;"
+							ng-src="{{getImage('cartDefault.png')}}" alt="default.png"
+							title="Nội dung này chưa có ảnh">
+						<div class="text-center fs-5">
+							<label class="w-100 text-nowrap">Tên người đặt hàng</label>
+						</div>
+					</div>
+					<span class="position-absolute top-0 bg-warning badge"
+						style="right: .5em;" ng-bind="e.order_details.length"></span>
+				</div>
+
+				<!-- Show waitData -->
+				<div class="col-lg-8 fs-5 position-relative">
+					<p class="text-muted text-end">{{e.regTime |
+						dateRelative:'LLLL'}}</p>
+					<div class="position-relative">
+						<span class="position-absolute top-0" style="right: 1rem;"><strong>Shipper</strong>:
+							{{e.account_id}}</span>
+						<h3>
+							<strong>Hóa đơn</strong> (<u>ODT{{e.id}}</u>)
+						</h3>
+						<hr class="m-1">
+						<label class="overflow-hidden" style="text-overflow: ellipsis;">
+							<b>Địa chỉ:&nbsp;</b>{{e.address ? e.address : 'chưa nhập địa
+							chỉ'}}
+						</label>
+						<hr class="m-1">
+						<div class="d-inline-block">
+							<strong>Tổng:</strong>
+							<!-- trạng thái < 2 => chưa giao hàng, vẫn được tính sale -->
+							<div class="ms-5 badge-cus" style="width: 100px; height: 100px;">
+								<label class="badge__label">{{(e.order_details |
+									sum:'oldPrice':'quantity') | number}}</label>
+							</div>
+						</div>
+						<div class="ms-2 d-inline-block">
+							<strong>mặt hàng:</strong> <span>{{e.order_details.length}}</span>
+						</div>
+						&HorizontalLine;
+						<div class="ms-2 d-inline-block">
+							<strong>số lượng</strong> <span>{{(e.order_details |
+								map:'quantity') | total}}</span>
+						</div>
+					</div>
+					<div class="position-absolute d-flex" style="right: 0; bottom: 0;">
+						<button class="m-1 button-29 collapsed" type="button"
+							data-bs-toggle="collapse" data-bs-target="#collapseODT{{e.id}}"
+							aria-expanded="false" aria-controls="collapseODT{{e.id}}"
+							title="Xem mã đơn hàng {{e.id}}">XEM ĐƠN ODS{{e.id}}</button>
+						<button class="m-1 button-29 text-warning" type="button"
+							ng-click="put(e)">Cập nhật</button>
+						<button class="m-1 button-29 text-danger" type="button"
+							ng-click="delete(e.id)">Xóa đơn hàng</button>
+					</div>
+				</div>
+			</div>
+		</h2>
+		<div id="collapseODT{{e.id}}" class="accordion-collapse collapse"
+			aria-labelledby="flush-headingOne"
+			data-bs-parent="#accordionODT{{e.id}}">
+			<div class="accordion-body">
+				<h3 class="text-center text-danger" ng-if="!e.order_details.length">
+					Đơn hàng chưa có sản phẩm</h3>
+				<!-- show children -->
+				<div ng-if="e.order_details.length">
+					<table class="table table-striped text-center overflow-auto scroll">
+						<thead>
+							<tr class="text-nowrap">
+								<th>HÌNH ẢNH</th>
+								<th>MÃ SẢN PHẨM</th>
+								<th>TÊN SẢN PHẨM</th>
+								<th>ĐƠN GIÁ SP</th>
+								<th>GIẢM GIÁ</th>
+								<th>ĐƠN GIÁ MUA</th>
+								<th>SỐ LƯỢNG</th>
+								<th>TỔNG</th>
+								<th>#</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="x in e.order_details"
+								title="{{x.product.descript}}">
+								<td style="width: 128px;"><img class="fit-img rounded-3"
+									ng-src="{{getImage(x.product.images.length>0?x.product.images[0]:'default.png')}}"
+									alt="{{x.product.name}}"></td>
+								<td>{{x.product.id}}</td>
+								<td>{{x.product.name}}</td>
+								<td>{{x.product.cosPrice|number}}</td>
+								<td><span class="badge bg-warning">{{x.product.proPrice}}%</span></td>
+								<td>{{x.oldPrice|number}}</td>
+								<td><input class="form-control text-center" type="number"
+									min="1" max="100" ng-model="x.quantity"></td>
+								<td>{{(x.oldPrice * x.quantity)|number}}</td>
+								<td><button class="button-29 text-danger"
+										ng-click="remove(e,x)">BỎ</button></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

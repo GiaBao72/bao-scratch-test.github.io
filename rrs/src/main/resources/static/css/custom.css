@@ -1,0 +1,415 @@
+.card-price {
+	padding: 0 1rem;
+	bottom: .25rem;
+	font-size: 1.25rem;
+	position: absolute;
+	width: calc(100% - .5rem);
+	text-shadow: 0 0 5px #000000;
+	border-radius: 1rem 0 0 0;
+    --bs-bg-opacity: .25;
+    --bs-text-opacity: 1;
+    color: rgba(var(--bs-warning-rgb),var(--bs-text-opacity))!important;
+    background-color: rgba(var(--bs-info-rgb),var(--bs-bg-opacity))!important;
+}
+
+/* ++++++++++++++++++++++++++++++++++++++++++++++++++ SCROLL */
+
+.scroll-x1::-webkit-scrollbar {
+	height: .75rem !important;
+    background-color: #F5F5F5;
+}
+.scroll-x::-webkit-scrollbar {
+    height: .25rem;
+    background-color: #F5F5F5;
+}
+
+.scroll-y::-webkit-scrollbar {
+    width: .5rem;
+    background-color: #F5F5F5;
+}
+
+
+.scroll::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    background-color: #F5F5F5;
+}
+
+.scroll::-webkit-scrollbar-thumb {
+    background-color: #00b7ff;
+    background-image: -webkit-linear-gradient(45deg,
+            rgba(255, 255, 255, .2) 25%,
+            transparent 25%,
+            transparent 50%,
+            rgba(255, 255, 255, .2) 50%,
+            rgba(255, 255, 255, .2) 75%,
+            transparent 75%,
+            transparent)
+}
+
+/* ++++++++++++++++++++++++++++++++++++++++++++++++++ BRAND EFFECT */
+.brand-effect span {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: block;
+    color: #cf1b1b;
+    font-size: 3rem;
+    letter-spacing: 8px;
+    cursor: pointer;
+}
+
+.brand-effect span::before {
+    content: "Request\00a0Response\00a0service";
+    position: absolute;
+    color: transparent;
+    background-image: repeating-linear-gradient(45deg,
+            transparent 0,
+            transparent 2px,
+            white 2px,
+            white 4px);
+    -webkit-background-clip: text;
+    top: 0px;
+    left: 0;
+    z-index: -1;
+    transition: 1s;
+}
+
+.brand-effect span::after {
+    content: "Request\00a0Response\00a0service";
+    position: absolute;
+    color: transparent;
+    background-image: repeating-linear-gradient(135deg,
+            transparent 0,
+            transparent 2px,
+            white 2px,
+            white 4px);
+    -webkit-background-clip: text;
+    top: 0px;
+    left: 0px;
+    transition: 1s;
+}
+
+.brand-effect span:before {
+    top: -5px;
+    left: -5px;
+}
+
+.brand-effect span:after {
+    top: 5px;
+    left: 5px;
+}
+
+.brand-effect span:hover:before {
+    top: -5px;
+    left: 5px;
+    text-shadow: 0 0 5px #fffb008c;
+}
+
+.brand-effect span:hover:after {
+    top: 5px;
+    left: -5px;
+    text-shadow: 0 0 5px #fffb008c;
+}
+
+/* ++++++++++++++++++++++++++++++++++++++++++++++++++ EFFECT 85*/
+.effect-85 {
+    cursor: help;
+    position: relative;
+    z-index: 0;
+}
+
+.effect-85:before {
+    content: "";
+    background: linear-gradient(45deg,
+            #ff0000,
+            #ff7300,
+            #fffb00,
+            #48ff00,
+            #00ffd5,
+            #002bff,
+            #7a00ff,
+            #ff00c8,
+            #ff0000);
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    background-size: 400%;
+    z-index: -1;
+    filter: blur(5px);
+    -webkit-filter: blur(5px);
+    width: 100%;
+    height: 100%;
+    animation: glowing-effect-85 20s linear infinite;
+}
+
+@keyframes glowing-effect-85 {
+    0% {
+        background-position: 0 0;
+    }
+
+    50% {
+        background-position: 400% 0;
+    }
+
+    100% {
+        background-position: 0 0;
+    }
+}
+
+/* ++++++++++++++++++++++++++++++++++++++++++++++++++ FORM */
+.form * {
+    box-sizing: border-box;
+}
+
+/* form starting stylings ------------------------------- */
+.form .group {
+    position: relative;
+    margin-bottom: 45px;
+}
+
+.form input,
+.form textarea {
+    width: 100%;
+    font-size: 20px;
+    padding: 5px 2rem 5px 5px;
+    font-weight: lighter;
+    text-align: end;
+    display: block;
+    border: none;
+    border-bottom: 1px solid #00ccff39;
+    display: inline;
+}
+
+.form textarea {
+    padding: 5px;
+}
+
+.form i {
+    position: absolute;
+    bottom: .5rem;
+    right: 0;
+}
+
+.form input:focus,
+.form textarea:focus {
+    outline: none;
+    border: none;
+}
+
+/* LABEL ======================================= */
+.form label {
+    color: #999;
+    font-weight: lighter;
+    position: absolute;
+    pointer-events: none;
+    left: 5px;
+    top: 10px;
+    transition: 0.2s ease all;
+    -moz-transition: 0.2s ease all;
+    -webkit-transition: 0.2s ease all;
+}
+
+/* active state */
+.form input:focus~label,
+.form input:valid~label,
+.form textarea:focus~label,
+.form textarea:valid~label {
+    top: -20px;
+    color: #0089ffcc;
+}
+
+/* BOTTOM BARS ================================= */
+.form .bar {
+    position: relative;
+    display: block;
+}
+
+.form .bar:before,
+.form .bar:after {
+    content: '';
+    height: 2px;
+    width: 0;
+    bottom: 1px;
+    position: absolute;
+    background: #ffee0086;
+    transition: 0.2s ease all;
+    -moz-transition: 0.2s ease all;
+    -webkit-transition: 0.2s ease all;
+}
+
+.form .bar:before {
+    left: 50%;
+}
+
+.form .bar:after {
+    right: 50%;
+}
+
+/* active state */
+.form input:focus~.bar:before,
+.form input:focus~.bar:after,
+.form textarea:focus~.bar:before,
+.form textarea:focus~.bar:after {
+    width: 50%;
+}
+
+/* HIGHLIGHTER ================================== */
+.form .highlight {
+    position: absolute;
+    height: 60%;
+    top: 25%;
+    left: 0;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* active state */
+.form input:focus~.highlight .form textarea:focus~.highlight {
+    -webkit-animation: inputHighlighter 0.3s ease;
+    -moz-animation: inputHighlighter 0.3s ease;
+    animation: inputHighlighter 0.3s ease;
+}
+
+/* ANIMATIONS ================ */
+@-webkit-keyframes inputHighlighter {
+    from {
+        background: #ffee0086;
+    }
+
+    to {
+        width: 0;
+        background: transparent;
+    }
+}
+
+@-moz-keyframes inputHighlighter {
+    from {
+        background: #ffee0086;
+    }
+
+    to {
+        width: 0;
+        background: transparent;
+    }
+}
+
+@keyframes inputHighlighter {
+    from {
+        background: #ffee0086;
+    }
+
+    to {
+        width: 0;
+        background: transparent;
+    }
+}
+
+
+@keyframes introduceBadge {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes pulseBadge {
+    0% {
+        transform: scale(1)
+    }
+
+    50% {
+        transform: scale(1.05)
+    }
+
+    100% {
+        transform: scale(1)
+    }
+}
+
+@keyframes pulseBadge2 {
+    0% {
+        transform: scale(1)
+    }
+
+    50% {
+        transform: scale(1.1)
+    }
+
+    100% {
+        transform: scale(1)
+    }
+}
+
+/* ++++++++++++++++++++++++++++++++++++++++++++++++++ BUTTON 29*/
+.badge-cus {
+    animation: introduceBadge 1s linear 0s 1 both;
+    border-radius: 50%;
+    height: 3rem;
+    perspective: 600px;
+    width: 3rem;
+}
+
+.badge-cus:before,
+.badge-cus::after {
+    animation: pulseBadge 3s cubic-bezier(0.860, 0.000, 0.070, 1.000) 0s infinite both;
+    border: 2px dashed #00d1f6;
+    border-radius: inherit;
+    position: absolute;
+    content: "";
+    opacity: 0.5;
+    bottom: -1rem;
+    left: -1rem;
+    right: -1rem;
+    top: -1rem;
+}
+
+.badge-cus::after {
+    animation-name: pulseBadge2;
+    opacity: 0.5;
+    bottom: -3px;
+    left: -3px;
+    right: -3px;
+    top: -3px;
+}
+
+@keyframes introduceLabel {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.4) rotateY(-1800deg);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1) rotateY(20deg);
+    }
+}
+
+@keyframes rotateLabel {
+    0% {
+        transform: translate(-50%, -50%) rotateY(20deg);
+    }
+
+    50% {
+        transform: translate(-50%, -50%) rotateY(-20deg);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) rotateY(20deg);
+    }
+}
+
+.badge__label {
+    animation: introduceLabel 2s cubic-bezier(0.19, 1, 0.22, 1) 1s 1 both,
+        rotateLabel 5s linear 3s infinite;
+    left: 50%;
+    text-shadow: 0 0 3px #ffe600;
+    position: absolute;
+    text-align: center;
+    text-shadow: 0px 4px 8px rgba(#f60000, 0.8);
+    top: 50%;
+    transform: translate(-50%, -50%);
+}

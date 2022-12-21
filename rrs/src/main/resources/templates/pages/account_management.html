@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymleaf.org" th:replace="~{/index::dynamic(~{::main})}">
+<head>
+<meta charset="UTF-8">
+<title>QUẢN LÝ TÀI KHOẢN</title>
+</head>
+<body>
+	<main class="container-fluid" ng-app="app" ng-controller="control">
+		<div class="row border">
+			<h3 class="mt-lg-5 mt-md-3 mt-sm-1 display-3 text-center text-warning">
+				Quản lý đăng tải tài khoản
+			</h3>
+			
+			<div class="col-lg-12 border-bottom mb-3 pb-3"></div>
+			<!-- filter account -->
+			<div class="col-lg-12 mt-3 pt-1 border-top border-3 border-dark"
+				id="cateProduct">
+				<div class="row align-items-center">
+					<div class="col-8 fs-5">Dữ liệu tài khoản đăng tải</div>
+					<div class="col-4 text-end">
+						<i class="fa fa-filter"></i>&nbsp; Bộ lọc ({{(data | filter:fil.$search.keywords).length}})
+					</div>
+					<div class="ms-auto ms-1 col-lg-3">
+						<label class="form-label">Tìm keywords</label>
+						<input type="text" class="form-control text-end" ng-model="fil.$search.keywords">
+					</div>
+					<div class="ms-1 col-lg-3">
+						<label class="form-label">Sắp xếp theo</label> <select
+							class="form-control" ng-model="fil.$search.sort">
+							<option value="username">TÊN ĐĂNG NHẬP</option>
+							<option value="name">HỌ VÀ TÊN</option>
+							<option value="email">EMAIL</option>
+							<option value="roles.length"><u>MỨC ĐỘ</u> TRUY CẬP
+							</option>
+							<option class="bg-success text-center text-light"
+								value="undefined">TĂNG&nbsp;&uparrow;</option>
+							<option class="bg-danger text-center text-light"
+								value="undefined">GIẢM&nbsp;&downarrow;</option>
+							<option value="-username">TÊN ĐĂNG NHẬP</option>
+							<option value="-name">HỌ VÀ TÊN</option>
+							<option value="-email">EMAIL</option>
+							<option value="roles.length"><u>MỨC ĐỘ</u> TRUY CẬP
+							</option>
+						</select>
+					</div>
+				</div>
+			</div>
+
+			<!-- SHOW data -->
+			<table
+				class="table table-striped overflow-auto mt-1 border-top border-3 border-dark text-center"
+				id="showData">
+				<thead id="detailAccount">
+					<tr class="text-nowrap text-center">
+						<th style="width: 5%">#</th>
+						<th>TÊN ĐĂNG NHẬP</th>
+						<th>
+							<div class="d-inline form-switch">
+								<input class="form-check-input" type="checkbox" role="switch"
+									id="showPassword" ng-model="fil.showPass">
+							</div> <label for="showPassword">MẬT KHẨU</label>
+						</th>
+						<th>HỌ VÀ TÊN</th>
+						<th>EMAIL</th>
+						<th>PHÂN QUYỀN</th>
+					</tr>
+					<tr class="form">
+						<td style="width: 5%;"></td>
+						<td class="group scroll-y scroll"><input type="text"
+							class="fs-6" required ng-model="entity.username">
+								<i class="fs-3 fa-sharp fa-solid {{entity.username ? 'text-primary fa-check' : 'text-danger fa-xmark'}}" style="bottom: 1rem;"></i> <span class="highlight"></span>
+								<span class="bar"></span>
+						                                         </td>
+						<td class="group scroll-y scroll fs-3"><i
+							class="fa-sharp fa-solid fa-eye-slash" style="bottom: 1rem;"
+							onclick="showPass(eyePass,this)"></i> <input type="password"
+							class="fs-6" required ng-model="entity.password" id="eyePass">
+							<span class="highlight"></span> <span class="bar"></span></td>
+						<td class="group scroll-y scroll"><input type="text"
+							class="fs-6" required ng-model="entity.name"> <i
+							class="fs-3 fa-sharp fa-solid {{entity.name ? 'text-primary fa-check' : 'text-danger fa-xmark'}}"
+							style="bottom: 1rem;"></i> <span class="highlight"></span> <span
+							class="bar"></span></td>
+						<td class="group scroll-y scroll"><input type="text"
+							class="fs-6" required ng-model="entity.email"> <i
+							class="fs-3 fa-sharp fa-solid {{entity.email ? 'text-primary fa-check' : 'text-danger fa-xmark'}}"
+							style="bottom: 1rem;"></i> <span class="highlight"></span> <span
+							class="bar"></span></td>
+						<td class="group scroll-y scroll">
+							<button type="button" class="button-89" data-bs-toggle="popover"
+								target="roleData">{{entity.roles.length}} MỨC TRUY CẬP
+							</button>
+							<div hidden>
+								<div class="" id="roleData">
+									<div class="form-check" ng-repeat="r in roles">
+										<input class="form-check-input" type="checkbox"
+											id="checkRole{{r.id}}" ng-checked="hasAnyRole(r.id)"
+											name="roleCheck"> <label
+											class="form-check-label text-nowrap" for="checkRole{{r.id}}">{{r.name}}</label>
+									</div>
+								</div>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="d-flex justify-content-end align-items-center">
+							<button class="button-29 m-1"
+								style="height: auto; padding: .75rem;" ng-click="post(entity)">Thêm</button>
+							<button class="button-29 m-1 text-warning"
+								style="height: auto; padding: .75rem;" ng-click="put(entity)">Sửa</button>
+							<button class="button-29 m-1 text-danger"
+								style="height: auto; padding: .75rem;"
+								ng-click="delete(entity.username)">Xóa</button>
+							<button class="button-85 m-1 btn-85-dark" ng-click="entity={}">Làm
+								mới</button>
+						</td>
+					</tr>
+				</thead>
+				<tbody class="scroll scroll-y"
+					style="display: block; overflow: auto; max-height: 80vh;">
+					<tr
+						ng-repeat="(i,e) in data | filter:fil.$search.keywords | orderBy: fil.$search.sort"
+						class="text-nowrap" ng-dblclick="read(e)">
+						<td class="scroll-x text-center" style="width: 5%;">{{i+1}}</td>
+						<td class="scroll-x text-start">{{e.username}}</td>
+						<td class="scroll-x">{{fil.showPass ? e.password :
+							'¯\(°_o)/¯=>********'}}</td>
+						<td class="scroll-x">{{e.name}}</td>
+						<td class="scroll-x">{{e.email}}</td>
+						<td class="scroll-x text-end"><span
+							ng-repeat="(j,r) in e.roles"> {{r}} <span
+								ng-if="e.roles.length>j+1">&HorizontalLine;</span>
+						</span></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+        <div class="row">
+        
+        	<!-- partners -->
+			<div th:replace="@{/components/_partners.htm}"></div>
+			
+            <!-- Infomation -->
+			<div th:replace="@{/components/_ours-info.htm}"></div>
+			            
+			<!-- FOOTER -->
+			<div th:replace="@{/components/_footer.htm}"></div>
+			
+        </div>
+
+        <!-- Show message -->
+		<div th:replace="@{/components/_message.htm}"></div>
+        
+		<script>
+		    const app = angular.module('app', ['ngRoute']);
+		    var serverIO = 'http://localhost:8080';
+		    moment.locale('vi');
+		
+		    app.filter('dateRelative', () => {
+		        return (date, format) => `${moment(date).format(format)} (${moment(date).fromNow()})`
+		    })
+		
+		    app.controller('control', function($scope, $http) {
+		
+		        (async () => {
+		        	
+		        	// get info
+		        	$http.get(getLink(serverIO,'rest/dir/documents/ourInf.json')).then(r => {
+		            	$scope.info = r.data
+		            }).catch(e => console.error(e.data ? e.data.message : e));
+		        	
+		            // get all partners
+		            $http.get(getLink(serverIO,'rest/dir/documents/partners.json')).then(r => {
+		                if(r.status==200) $scope.partners = r.data
+		            }).catch(e => console.error(e.data ? e.data.message : e));
+		
+		             // get all roles
+		            $http.get(getLink(serverIO,'rest/roles')).then(r => {
+		                if(r.status==200) $scope.roles = r.data
+		            }).catch(e => console.error(e.data ? e.data.message : e));
+		
+		            // get accounts by account
+		            $http.get(getLink(serverIO,`rest/accounts`)).then(
+		                r => $scope.data = r.data
+		            ).catch(e => console.error(e.data ? e.data.message : e));
+		        
+		            const popover = document.querySelector('[data-bs-toggle="popover"]')
+		            new bootstrap.Popover(
+		                popover,{html:true,content:document.getElementById(popover.getAttribute('target'))}
+		            )	
+		        })();
+		
+		        $scope.hasAnyRole = function(r){
+		            if(!$scope.entity) return; 
+		            if($scope.entity.roles) for(x of $scope.entity.roles) if(r==x) return true;
+		            return false;
+		        }
+		        
+		        // get account
+		        $scope.read = (e) => {
+		            $scope.entity = angular.copy(e);
+		            document.getElementById('detailAccount').scrollIntoView();
+		            showToast(`<span class="text-success">Xem thông tin tài khoản</span>`, `Thông tin người dùng: ${e.username}`)
+		        };
+		
+		        $scope.post = (e) => {
+		            if(!e) return;
+		            let i = getIndex('username',e.username,$scope.data);
+		            if(i < 0) $http.post(getLink(serverIO,'rest/accounts'), format(e)).then(r => {
+		                let name = r.data.name;
+		                $scope.entity = r.data;
+		                $scope.data.unshift(angular.copy(r.data));
+		                showToast(`<span class="text-success">Thêm tài khoản hoàn tất</span>`, `Đã thêm tài khoản: ${name}`)
+		            }).catch(err => showToast(`<span class="text-danger">Thêm tài khoản thất bại</span>`, err.data ? err.data.message : err))
+		            else showToast(`<span class="text-warning">Thêm tài khoản thất bại</span>`, `Tài khoản có username "${e.username} <u>đã</u> tồn tại"`)
+		        }
+		
+		        $scope.put = (e) => {
+		            if(!e) return;
+		            let i = getIndex('username',e.username,$scope.data);
+		            if(i > -1) $http.put(getLink(serverIO,'rest/accounts'), format(e)).then(r => {
+		                let name = r.data.name;
+		                $scope.entity = r.data;
+		                $scope.data[i] = angular.copy(r.data);
+		                showToast(`<span class="text-success">Cập nhật tài khoản hoàn tất</span>`, `Đã cập nhật tài khoản: ${name}`)
+		            }).catch(err => showToast(`<span class="text-danger">Cập nhật tài khoản thất bại</span>`, err.data ? err.data.message : err))
+		            else showToast(`<span class="text-warning">Sửa tài khoản thất bại</span>`, `Tài khoản có username "${e.username}" <u>không</u> tồn tại"`)
+		        }
+		
+		        $scope.delete = (k) => {
+		            if(!k) return;
+		            let i = getIndex('username',k,$scope.data);
+		            if(i > -1) $http.delete(getLink(serverIO,`rest/accounts/${k}`)).then(r => {
+		                let name = angular.copy($scope.data[i].name);
+		                $scope.data.splice(i,1);
+		                let size = $scope.data.length-1;
+		                if(size > -1) $scope.read($scope.data[i>=size ? size : i])
+		                showToast(`<span class="text-success">Xóa tài khoản hoàn tất</span>`, `Đã xóa tài khoản: ${name}`)
+		            }).catch(err => showToast(`<span class="text-danger">Xóa tài khoản thất bại</span>`, err.data ? err.data.message : err));
+		            else showToast(`<span class="text-warning">Xóa tài khoản thất bại</span>`, `Tài khoản có username "${e.username}" <u>không</u> tồn tại"`)
+		        }
+		    
+		        function format(e) {
+		            e.roles=[];
+		            for(r of $scope.roles) {
+		                let x = document.getElementById(`checkRole${r.id}`);
+		                if(x)if(x.checked) e.roles.push(r.id);
+		            } return e;
+		        }
+		    });
+		</script>
+	</main>
+</body>
+</html>

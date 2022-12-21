@@ -1,0 +1,134 @@
+<nav class="navbar navbar-expand-lg">
+	<div class="container-fluid">
+		<a class="navbar-brand" href="/rrs">
+			&Ropf;&Ropf;&sopf;
+		</a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+			data-bs-target="#navbarScroll" aria-controls="navbarScroll"
+			aria-expanded="false" aria-label="Toggle navigation">
+			<i class="fa fa-2xl fa-bars text-secondary"></i>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarScroll">
+			<ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll"
+				style="-bs-scroll-height: 100px;">
+				<!-- PAGES HOME -->
+				<li class="nav-item">
+					<a class="nav-link active" aria-current="page" href="/rrs/pages/home">
+						<i class="fa fa-home-lg"></i> Home
+					</a>
+				</li>
+
+				<!-- _________________________________________ MANAGEMENT FOR ROLE'S OWNER  || ADMIN -->
+				<li class="nav-item dropdown text-nowrap" th:if="${#request.isUserInRole('OWNER') or #request.isUserInRole('ADMIN')}">
+					<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						<i class="fa fa-desktop-alt"></i>&nbsp;Quản lý
+					</a>
+					<ul class="dropdown-menu">
+						<!-- users're account management -->
+						<a class="nav-link" href="/rrs/pages/account_management" th:if="${#request.isUserInRole('OWNER')}">
+							<i class="fa fa-user-friends"></i> tài khoản hệ thống
+						</a>
+						<a class="nav-link" href="/rrs/pages/progress_management">
+							<i class="fa-solid fa-chart-simple"></i> Đơn đang chờ
+						</a>
+						<a class="nav-link" href="/rrs/pages/statistic_order">
+							<i class="fa-solid fa-chart-simple"></i> Thống kê dữ liệu
+						</a>
+						<li><hr class="m-0 dropdown-divider"></li>
+						<a class="nav-link" href="/rrs/pages/setting">
+							<i class="fa-solid fa-chart-simple"></i> Quản lý thông tin khác
+						</a>
+					</ul>
+				</li>
+				
+				<li class="nav-item dropdown text-nowrap" th:if="${#request.isUserInRole('USER') or #request.isUserInRole('SHIPPER') or #request.isUserInRole('BUYER') or #request.isUserInRole('SELLER') or #request.isUserInRole('OWNER')}">
+					<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						<i class="fa fa-desktop-alt"></i>&nbsp;Cá nhân
+					</a>
+					<ul class="dropdown-menu">
+						<a class="nav-link" href="/rrs/pages/product_seller" th:if="${#request.isUserInRole('SELLER') or #request.isUserInRole('OWNER')}">
+							<i class="fa-solid fa-chart-simple"></i> Đăng sản phẩm
+						</a>
+						<a class="nav-link" href="/rrs/pages/product_buyer" th:if="${#request.isUserInRole('USER') or #request.isUserInRole('BUYER') or #request.isUserInRole('OWNER')}"> 
+							<i class="fa fa-user-friends"></i> Đơn đặt hàng
+						</a>
+						<a class="nav-link" href="/rrs/pages/shipper_order" th:if="${#request.isUserInRole('SHIPPER') or #request.isUserInRole('OWNER')}"> 
+							<i class="fa fa-user-friends"></i> Đơn giao hàng
+						</a>
+					</ul>
+				</li>
+				
+				<li class="nav-item">
+					<a class="nav-link active" aria-current="page" href="/rrs/pages/product_detail">
+						&nbsp;chi tiết sản phẩm
+					</a>
+				</li>
+			</ul>
+
+			<ul class="m-auto navbar-nav navbar-nav-scroll">
+				<li class="nav-item">
+					<a class="nav-link" href="#cateProduct"> Nội dung </a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="#infomation"> Giới thiệu </a>
+				</li>
+			</ul>
+
+			<!-- _________________________________________ SECURITY -->
+			<ul class="navbar-nav my-2 my-lg-0 navbar-nav-scroll">
+				<li class="nav-item dropdown" onmouseenter="drdActive(this)"
+					onmouseleave="drdActive(this)" th:unless="${#request.remoteUser}">
+					<a class="nav-link dropdown-toggle" href="/security/login"
+					role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						<i class="fa fa-sign-in"></i>&nbsp;Đăng nhập
+				</a>
+					<ul class="dropdown-menu">
+						<!-- users're account management -->
+						<a class="nav-link" href="/security/loginForm">
+							<i class="fa fa-sign-in-alt"></i> Đăng nhập
+						</a>
+						
+						<li><hr class="m-0 dropdown-divider"></li>
+						<a class="nav-link" href="/security/loginAuth2/facebook">
+							<i class="fa-brands fa-facebook-square"></i>&nbsp;Facebook
+						</a>
+						<a class="nav-link" href="/security/loginAuth2/google">
+							<i class="fa-brands fa-google"></i>&nbsp;Google
+						</a>
+
+						<li><hr class="m-0 dropdown-divider"></li>
+						<a class="nav-link" href="/security/register"> <i
+							class="fa fa-registered"></i> Đăng ký
+						</a>
+
+						<li><hr class="m-0 dropdown-divider"></li>
+						<a class="nav-link text-nowrap" href="/security/forgot_password">
+							<i class="fa fa-question-circle"></i> Quên mật khẩu
+						</a>
+					</ul>
+				</li>
+
+				<li class="nav-item dropdown" onmouseenter="drdActive(this)"
+					onmouseleave="drdActive(this)" th:if="${#request.remoteUser}">
+					<a class="nav-link dropdown-toggle" href="/security/logoutForm" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						<span th:utext="${#request.remoteUser}"></span>
+					</a>
+					<ul class="dropdown-menu end-0">
+						<!-- users're account management -->
+						<a class="nav-link" href="/security/logoutForm"> <i
+							class="fa fa-sign-out-alt"></i> Đăng xuất
+						</a>
+						<!-- contents management -->
+						<li><hr class="m-0 dropdown-divider"></li>
+						<a class="nav-link" href="/security/change_password"> <i
+							class="fa fa-refresh"></i> Đổi mật khẩu
+						</a>
+						<a class="nav-link" href="/security/about_me"> <i
+							class="fa fa-id-card"></i> Thông tin
+						</a>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div>
+</nav>

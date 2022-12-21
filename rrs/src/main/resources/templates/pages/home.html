@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymleaf.org"
+	th:replace="~{/index::dynamic(~{::main})}">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<main class="container-fluid" ng-app="app" ng-controller="control">
+        <div class="row">
+        
+            <!-- header carousel -->
+            <div class="col-12 p-0 rounded-3 bg-warning">
+                <div id="carouselHeader" class="carousel slide overflow-hidden" data-bs-ride="false">
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#carouselHeader" data-bs-slide-to="{{i}}" class="{{i==0?'active':''}}"
+                            aria-current="true" ng-repeat="(i,e) in carousels"></button>
+                    </div>
+                    <div class="carousel-inner">
+                        <div class="carousel-item {{i==0?'active':''}}" ng-repeat="(i,e) in carousels">
+                            <img class="d-block ar4x3 o-fit-cover w-100" ng-src="{{e.image}}">
+                            <div class="position-absolute start-0 end-0 bottom-0 p-5 pt-2 pb-2 fs-5 text-dark bg-white bg-opacity-50 w-100">
+                                <h5 class="fw-bold">{{e.title}}</h5>
+                                <p>{{e.content}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselHeader" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselHeader" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Nomal products -->
+            <div id="cateProduct" class="col-lg-12 border mt-1 rounded-3 pt-2 pb-2">
+                <!-- Prepare data -->
+                <div class="d-none">
+                    {{data2 = (data | filter:fil.$search1 | filter:{category:{id:fil1.$cate.id} })}}
+                    {{fil1.size=(data2.length/12 | number:0)}}
+                    <input type="hidden" ng-init="fil1.$cate.id=undefined">
+                    <input type="hidden" ng-init="fil1.page=0">
+                </div>
+    
+    			<!-- filter data -->
+                <div class="mt-3 d-flex border-bottom justify-content-between">
+                    <h3 class="text-uppercase text-center text-lg-start text-primary">
+                        Sản phẩm theo loại&nbsp;<i class="fas fa-th"></i>
+                    </h3>
+                    <div class="form">
+                        <div class="group mb-3">
+                            <input type="text" class="fw-bold" required ng-model="fil.$search1" name="name">
+                            <i class="fs-3 fa-solid {{fil.$search1 ? 'text-primary fa-circle-dot' : 'text-secondary fa-circle-notch'}}"></i>
+                            <span class="highlight"></span>
+                            <span class="bar"></span>
+                            <label>Nhập ký tự bất kỳ</label>
+                        </div>
+                    </div>
+                </div>
+    
+                <!--categpry product -->
+                <div class="pb-2 d-flex overflow-auto border-bottom scroll scroll-x1">
+                    <button class="m-1 button-89 text-primary rounded-3 text-nowrap active" 
+                        onclick="buttonActive(this, 'categories')" name="categories" ng-click="fil1.$cate.id=undefined">
+                        <i class="fa fa-hashtag"></i>tất cả
+                    </button>
+                    <button role="button" class="m-1 button-89 text-primary rounded-3 text-nowrap" ng-repeat="x in categories" 
+                        onclick="buttonActive(this, 'categories')" name="categories" ng-click="fil1.$cate.id=x.id">
+                        <i class="fa fa-hashtag"></i>{{x.name}}
+                    </button>
+                </div>
+    
+                <!-- product -->
+                <div class="overflow-auto d-flex flex-wrap">
+                    <div class="col-lg-2 col-md-4 col-sm-6 p-1" ng-dblclick="setLocal(e)" ng-repeat="e in data2 | limitTo: 12:fil1.page*12">
+                        <div class="card fit-img hover hover-box">
+                            <div class="card-title m-0 text-nowrap fw-bold overflow-hidden" style="text-overflow: ellipsis;">
+                                {{e.name}}
+                            </div>
+                            <div class="card-body p-1">
+                                <span class="card-price" style="bottom: .25rem; text-shadow: 0 0 5px #000000;">{{e.cosPrice | number}}</span>
+                                <span class="position-absolute font-effect-fire-animation" ng-if="e.proPrice>0">
+                                    <i class="fa-solid fa-tag"></i>&nbsp;{{e.proPrice}}%
+                                </span>
+                                <!-- Show account and related products control bar -->
+                                <div class="m-1 position-absolute bottom-0 end-0 text-end showA text-nowrap overflow-auto" style="width: calc(100% - 0.5em);">
+                                    <a style="display: none; font-size: small;" href="mailto:{{e.account.email}}" class="btn btn-light p-1">Gửi email</a>
+                                    <!-- Show account posted content -->
+                                    <button class="btn p-0 ar1x1">
+                                        <img class="fit-img o-fit-cover accountAvatar" ng-src="https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png" 
+                                            alt="{{e.account.name}}" title="{{e.account.name}}">
+                                    </button>
+                                </div>
+                                <img ng-src="{{getImage(e.images[0])}}" class="fit-img ar16x10" style="object-fit: cover;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- pagination -->
+                <nav aria-label="Page navigation example" ng-if="fil1.size > 1">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" ng-click="fil1.page= fil1.page>0?fil1.page-1:0">
+                            <a class="page-link" href="" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item d-flex overflow-auto">
+                            <div class="" ng-click="fil1.page=i" ng-repeat="(i,e) in range(fil1.size)">
+                                <a class="page-link" href="" aria-label="Previous">{{e}}</a>
+                            </div>
+                        </li>
+                        <li class="page-item" ng-click="fil1.page= fil1.size>fil1.page?fil1.page+1:fil1.size">
+                            <a class="page-link" href="" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            
+            <!-- target carousel products -->
+            <nav id="typeProduct" class="col-lg-12 mt-1 p-1 bg-light bg-gradient border-top border-bottom nav justify-content-lg-end">
+                <a class="m-1 button-89 text-primary active" href="#" data-bs-target="#productCarousel" data-bs-slide-to="0" name="typeProducts"
+                    onclick="buttonActive(this, 'typeProducts')">
+                    SẢN PHẨM BÁN CHẠY&nbsp;<i class="fa-solid fa-gauge-high"></i>
+                </a>
+                <a class="m-1 button-89 text-warning" href="#" data-bs-target="#productCarousel" data-bs-slide-to="1" name="typeProducts"
+                    onclick="buttonActive(this, 'typeProducts')">
+                    SẢN PHẨM KHUYỄN MÃI&nbsp;<i class="fa-solid fa-tag"></i>
+                </a>
+                <a class="m-1 button-89 text-danger" data-bs-target="#productCarousel" data-bs-slide-to="2" name="typeProducts"
+                    onclick="buttonActive(this, 'typeProducts')">
+                    SẢN PHẨM HOT&nbsp;<i class="fa-brands fa-hotjar font-effect-fire-animation"></i>
+                </a>
+            </nav>
+
+            <!-- Carousel type products -->
+            <div id="productCarousel" class="col-lg-12 carousel slide border mt-1 rounded-3 pt-2 pb-2" data-bs-ride="true">
+                <div class="carousel-inner">
+                
+                    <!-- Ban chay -->
+                    <div class="carousel-item active">
+	                     <!-- Prepare data -->
+	                     <div class="d-none">
+	                        {{fil2.size=((data3 | filter: fil.$search2).length/12 | number:0)}}
+	                        <input type="hidden" ng-init="fil2.$cate.id=undefined">
+	                        <input type="hidden" ng-init="fil2.page=0">
+	                    </div>
+	            
+	   					 <!-- filter data -->
+	                     <div class="mt-3 d-flex border-bottom justify-content-between">
+	                         <h3 class="text-uppercase text-center text-lg-start text-primary">
+	                             Sản phẩm bán chạy&nbsp;<i class="fa-solid fa-gauge-high"></i>
+	                         </h3>
+	                         <div class="form">
+	                             <div class="group mb-3">
+	                                 <input type="text" class="fw-bold" required ng-model="fil.$search2" name="name">
+	                                 <i class="fs-3 fa-solid {{fil.$search2 ? 'text-primary fa-circle-dot' : 'text-secondary fa-circle-notch'}}"></i>
+	                                 <span class="highlight"></span>
+	                                 <span class="bar"></span>
+	                                 <label>Nhập ký tự bất kỳ</label>
+	                             </div>
+	                         </div>
+	                     </div>
+	            
+	                     <!-- product -->
+	                     <div class="overflow-auto d-flex flex-wrap">
+	                         <div class="col-lg-2 col-md-4 col-sm-6 p-1" ng-dblclick="setLocal(e)" ng-repeat="(i,e) in data3 | filter:fil.$search2 | limitTo: 12:fil2.page*12">
+	                             <div class="card fit-img hover hover-box">
+	                                 <div class="card-title m-0 text-nowrap fw-bold overflow-hidden" style="text-overflow: ellipsis;">
+	                                     {{e.name}}
+	                                 </div>
+	                                 <div class="card-body p-1">
+	                                     <span class="card-price" style="bottom: .25rem; text-shadow: 0 0 5px #000000;">{{e.cosPrice | number}}</span>
+	                                     <span class="position-absolute font-effect-fire-animation ng-binding">
+	                                         SỐ LƯỢNG&nbsp;{{e.quantity}}
+	                                     </span>
+	                                     <!-- Show account and related products control bar -->
+	                                     <div class="m-1 position-absolute bottom-0 end-0 text-end showA text-nowrap overflow-auto" style="width: calc(100% - 0.5em);">
+	                                         <a style="display: none; font-size: small;" href="mailto:{{e.account.email}}" class="btn btn-light p-1">Gửi email</a>
+	                                         <!-- Show account posted content -->
+	                                         <button class="btn p-0 ar1x1">
+	                                             <img class="fit-img o-fit-cover accountAvatar" ng-src="https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png" 
+	                                                 alt="{{e.account.name}}" title="{{e.account.name}}">
+	                                         </button>
+	                                     </div>
+	                                     <img ng-src="{{getImage(e.images[0])}}" class="fit-img ar16x10" style="object-fit: cover;">
+	                                 </div>
+	                             </div>
+	                         </div>
+	                     </div>
+	                     
+	                     <!-- pagination -->
+	                     <nav aria-label="Page navigation example" ng-if="fil2.size > 1">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item" ng-click="fil2.page= fil2.page>0?fil2.page-1:0">
+                                    <a class="page-link" href="" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item d-flex overflow-auto">
+                                    <div class="" ng-click="fil2.page=i" ng-repeat="(i,e) in range(fil2.size)">
+                                        <a class="page-link" href="" aria-label="Previous">{{e}}</a>
+                                    </div>
+                                </li>
+                                <li class="page-item" ng-click="fil2.page= fil2.size>fil2.page?fil2.page+1:fil2.size">
+                                    <a class="page-link" href="" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                   </div>
+                    
+                    <!-- Khuyen mai -->
+                    <div class="carousel-item">
+                        <!-- Prepare data -->
+                        <div class="d-none">
+                            {{data4 = (data | filter:fil.$search3 | compare:'proPrice':0)}}
+                            {{fil3.size=(data4.length/12 | number:0)}}
+                            <input type="hidden" ng-init="fil3.$cate.id=undefined">
+                            <input type="hidden" ng-init="fil3.page=0">
+                        </div>
+
+						<!-- filter data -->
+                        <div class="mt-3 d-flex border-bottom justify-content-between">
+                            <h3 class="text-uppercase text-center text-lg-start text-warning">
+                                Sản phẩm khuyến mãi&nbsp;<i class="fa-solid fa-tag"></i>
+                            </h3>
+                            <div class="form">
+                                <div class="group mb-3">
+                                    <input type="text" class="fw-bold" required ng-model="fil.$search3" name="name">
+                                    <i class="fs-3 fa-solid {{fil.$search3 ? 'text-primary fa-circle-dot' : 'text-secondary fa-circle-notch'}}"></i>
+                                    <span class="highlight"></span>
+                                    <span class="bar"></span>
+                                    <label>Nhập ký tự bất kỳ</label>
+                                </div>
+                            </div>
+                        </div>
+            
+                        <!-- product -->
+                        <div class="overflow-auto d-flex flex-wrap">
+                            <div class="col-lg-2 col-md-4 col-sm-6 p-1" ng-dblclick="setLocal(e)" ng-repeat="e in data4 | filter:fil.$search3 | limitTo: 12:fil3.page*12">
+                                <div class="card fit-img hover hover-box">
+                                    <div class="card-title m-0 text-nowrap fw-bold overflow-hidden" style="text-overflow: ellipsis;">
+                                        {{e.name}}
+                                    </div>
+                                    <div class="card-body p-1">
+                                        <span class="card-price" style="bottom: .25rem; text-shadow: 0 0 5px #000000;">{{e.cosPrice | number}}</span>
+                                        <span class="position-absolute font-effect-fire-animation">
+                                            <i class="fa-solid fa-tag"></i>&nbsp;{{e.proPrice}}%
+                                        </span>
+                                        <!-- Show account and related products control bar -->
+                                        <div class="m-1 position-absolute bottom-0 end-0 text-end showA text-nowrap overflow-auto" style="width: calc(100% - 0.5em);">
+                                            <a style="display: none; font-size: small;" href="mailto:{{e.account.email}}" class="btn btn-light p-1">Gửi email</a>
+                                            <!-- Show account posted content -->
+                                            <button class="btn p-0 ar1x1">
+                                                <img class="fit-img o-fit-cover accountAvatar" ng-src="https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png" 
+                                                    alt="{{e.account.name}}" title="{{e.account.name}}">
+                                            </button>
+                                        </div>
+                                        <img ng-src="{{getImage(e.images[0])}}" class="fit-img ar16x10" style="object-fit: cover;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+            
+                        <!-- pagination -->
+                        <nav aria-label="Page navigation example" ng-if="fil3.size > 1">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item" ng-click="fil3.page= fil3.page>0?fil3.page-1:0">
+                                    <a class="page-link" href="" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item d-flex overflow-auto">
+                                    <div class="" ng-click="fil3.page=i" ng-repeat="(i,e) in range(fil3.size)">
+                                        <a class="page-link" href="" aria-label="Previous">{{e}}</a>
+                                    </div>
+                                </li>
+                                <li class="page-item" ng-click="fil3.page= fil3.size>fil3.page?fil3.page+1:fil3.size">
+                                    <a class="page-link" href="" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+            
+                    <!-- Hot -->
+                    <div class="carousel-item">
+                        <!-- Prepare data -->
+                        <div class="d-none">
+                            {{fil3.size=((data5 | filter:fil.$search4).length/12 | number:0)}}
+                            <input type="hidden" ng-init="fil3.$cate.id=undefined">
+                            <input type="hidden" ng-init="fil3.page=0">
+                        </div>
+    					
+    					<!-- Filter data -->
+                        <div class="mt-3 d-flex border-bottom justify-content-between">
+                            <h3 class="text-uppercase text-center text-lg-start text-danger">
+                                Sản phẩm HOT&nbsp;<i class="fa-brands fa-hotjar"></i>
+                            </h3>
+                            <div class="form">
+                                <div class="group mb-3">
+                                    <input type="text" class="fw-bold" required ng-model="fil.$search4" name="name">
+                                    <i class="fs-3 fa-solid {{fil.$search4 ? 'text-primary fa-circle-dot' : 'text-secondary fa-circle-notch'}}"></i>
+                                    <span class="highlight"></span>
+                                    <span class="bar"></span>
+                                    <label>Nhập ký tự bất kỳ</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- product -->
+                        <div class="overflow-auto d-flex flex-wrap">
+                            <div class="col-lg-2 col-md-4 col-sm-6 p-1" ng-dblclick="setLocal(e)" ng-repeat="(i,e) in data5 | filter:fil.$search4 | limitTo: 12:fil3.page*12">
+                                <div class="card fit-img hover hover-box">
+                                    <div class="card-title m-0 text-nowrap fw-bold overflow-hidden" style="text-overflow: ellipsis;">
+                                        {{e.name}}
+                                    </div>
+                                    <div class="card-body p-1">
+                                        <span class="card-price" style="bottom: .25rem; text-shadow: 0 0 5px #000000;">{{e.cosPrice | number}}</span>
+                                        <span class="position-absolute font-effect-fire-animation fs-5">
+                                            <i class="fa-brands fa-hotjar"></i>&nbsp;HOT-TOP&nbsp;{{e.quantity}}
+                                        </span>
+                                        <span class="position-absolute font-effect-fire-animation" ng-if="e.proPrice > 0" style="top: 5rem;right: .25rem;">
+                                            <i class="fa-solid fa-tag"></i>&nbsp;{{e.proPrice}}%
+                                        </span>
+                                        <!-- Show account and related products control bar -->
+                                        <div class="m-1 position-absolute bottom-0 end-0 text-end showA text-nowrap overflow-auto"
+                                            style="width: calc(100% - 0.5em);">
+                                            <a style="display: none; font-size: small;" href="mailto:{{e.account.email}}"
+                                                class="btn btn-light p-1">Gửi email</a>
+                                            <!-- Show account posted content -->
+                                            <button class="btn p-0 ar1x1">
+                                                <img class="fit-img o-fit-cover accountAvatar"
+                                                    ng-src="https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
+                                                    alt="{{e.account.name}}" title="{{e.account.name}}">
+                                            </button>
+                                        </div>
+                                        <img ng-src="{{getImage(e.images[0])}}" class="fit-img ar16x10" style="object-fit: cover;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- pagination -->
+                        <nav aria-label="Page navigation example" ng-if="fil3.size > 1">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item" ng-click="fil3.page= fil3.page>0?fil3.page-1:0">
+                                    <a class="page-link" href="" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item d-flex overflow-auto">
+                                    <div class="" ng-click="fil3.page=i" ng-repeat="(i,e) in range(fil3.size)">
+                                        <a class="page-link" href="" aria-label="Previous">{{e}}</a>
+                                    </div>
+                                </li>
+                                <li class="page-item" ng-click="fil3.page= fil3.size>fil3.page?fil3.page+1:fil3.size">
+                                    <a class="page-link" href="" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+        
+        	<!-- partners -->
+			<div th:replace="@{/components/_partners.htm}"></div>
+			
+            <!-- Infomation -->
+			<div th:replace="@{/components/_ours-info.htm}"></div>
+			            
+			<!-- FOOTER -->
+			<div th:replace="@{/components/_footer.htm}"></div>
+			
+        </div>
+
+        <!-- Show message -->
+		<div th:replace="@{/components/_message.htm}"></div>
+
+        <script>
+                const app = angular.module('app', ['ngRoute']);
+                var serverIO = 'http://localhost:8080';
+                
+                app.filter('compare', () => {
+                    return (array, col, value) => {
+                        if(!array) return;
+                        return array.filter(x => x[col] > value);
+                    }
+                });
+
+                app.controller('control', function($scope, $http) {
+
+                    (async () => {
+    		        	
+    		        	// get info
+    		        	$http.get(getLink(serverIO,'rest/dir/documents/ourInf.json')).then(r => {
+    		            	$scope.info = r.data
+    		            }).catch(e => console.error(e.data ? e.data.message : e));
+    		        	
+                        // get all partners
+                        $http.get(getLink(serverIO,'rest/dir/documents/partners.json')).then(r => {
+                            if(r.status==200) $scope.partners = r.data
+                        }).catch(e => console.error(e.data ? e.data.message : e));
+
+                        // get all partners
+                        $http.get(getLink(serverIO,'rest/dir/documents/carousel.json')).then(r => {
+                            if(r.status==200) $scope.carousels = r.data
+                        }).catch(e => console.error(e.data ? e.data.message : e));
+
+                        // get all categories
+                        $http.get(getLink(serverIO,'rest/categories')).then(r => {
+                            if(r.status==200) $scope.categories = r.data
+                        }).catch(e => console.error(e.data ? e.data.message : e));
+
+                        // get all products
+                        $http.get(getLink(serverIO,'rest/products')).then(r => {
+                            if(r.status==200) $scope.data = r.data;
+                        }).catch(e => console.error(e.data ? e.data.message : e));
+                        
+                        // get all discount data
+                        $http.get(getLink(serverIO,'rest/products/dis')).then(r => {
+                            if(r.status==200) $scope.data3 = r.data;
+                        }).catch(e => console.error(e.data ? e.data.message : e));
+
+                        // get all hotTOP data
+                        $http.get(getLink(serverIO,'rest/products/hot')).then(r => {
+                            if(r.status==200) $scope.data5 = r.data;
+                        }).catch(e => console.error(e.data ? e.data.message : e));
+                    })();
+                    
+
+                    $scope.setLocal = (e) => {
+                        LOCAL.set('item', e);
+                        location.href = '/rrs/pages/product_detail';
+                    }
+
+                    $scope.range = (size) => {
+                        var arr = [];
+                        for (let i = 0; i <= size; arr.push(++i));
+                        return arr;
+                    }
+
+                    // prepare image
+                    $scope.getImage = function(imgName) {
+                        if(imgName) return imgName.startsWith('http') || imgName.startsWith('blob') ? imgName.trim() : getLink(serverIO, 'data/images/product', imgName);
+                        return getLink(serverIO, 'data/images/product/default.png');
+                    }
+                });
+            </script>
+        </main>
+</body>
+</html>

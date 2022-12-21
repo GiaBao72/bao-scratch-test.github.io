@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymleaf.org" th:replace="~{/index::dynamic(~{::main})}">
+<head>
+<meta charset="UTF-8">
+<title>QUẢN LÝ TÀI nội dung</title>
+</head>
+<body>
+	<main class="container-fluid" ng-app="app" ng-controller="control">
+
+	<div class="row border" id="detailProduct">
+		<h1 class="mt-lg-5 mt-md-3 mt-sm-1 text-center text-warning">Quản lý đăng tải nội dung</h1>
+		<div class="col-lg-12 border-bottom mb-3 pb-3"></div>
+
+		<!-- Show images -->
+		<div class="col-lg-4">
+			<div
+				class="d-flex flex-wrap align-content-between position-relative">
+				<!-- Change file -->
+				<input type="file" accept="image/png, image/jpeg"
+					class="button-89 w-100" style="margin: 0 !important;"
+					onchange="angular.element(this).scope().setImage(event)"
+					id="prepareImg" multiple>
+
+				<div ng-if="entity.images.length > 0" class="m-auto mt-3 w-100">
+					<!-- carousel images -->
+					<div id="contentImage" class="carousel slide rounded-3 flex-fill"
+						data-bs-ride="true">
+						<div class="carousel-inner">
+							<div class="carousel-item {{i==0 ? 'active' : ''}} ar16x9"
+								ng-repeat="(i,image) in entity.images">
+								<img ng-src="{{getImage(image)}}" class="fit-img rounded-3"
+									style="object-fit: cover;" alt="{{image}}">
+								<div class="border text-center">
+									<label class="w-100 text-muted text-nowrap overflow-hidden"
+										style="text-overflow: ellipsis;">{{image ? image :
+										'default image'}}</label>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- others -->
+					<div class="w-100 border text-nowrap overflow-auto"
+						ng-if="entity.images.length > 1">
+						<button type="button" data-bs-target="#contentImage"
+							data-bs-slide-to="{{i}}"
+							class="btn size-5 p-1 ar16x9 {{e.active}}"
+							ng-repeat="(i,image) in entity.images">
+							<img class="fit-img o-fit-cover" ng-src="{{getImage(image)}}"
+								alt="{{image}}">
+						</button>
+					</div>
+				</div>
+
+				<!-- default image -->
+				<div class="w-100 ar16x10 mt-3"
+					ng-if="1 > entity.images.length || !entity.images.length">
+					<img class="fit-img" style="object-fit: cover;"
+						ng-src="{{getImage('default.png')}}" alt="default.png"
+						title="Nội dung này chưa có ảnh">
+					<div class="border text-center">
+						<label class="w-100 text-muted text-nowrap overflow-hidden"
+							style="text-overflow: ellipsis;">default.png</label>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+		<!-- FORM -->
+		<div class="col-lg-8">
+			<form action="" class="form p-3 border-start border-end border-info" id="formCtrl">
+
+				<div class="group mb-3" th:if="${#request.isUserInRole('OWNER')}">
+					<strong class="form-label text-center">Tài khoản</strong>
+					<select class="form-control text-center overflow-auto scroll-y" ng-model="entity.account.username">
+						<option value="{{a.username}}" ng-repeat="a in accounts | filter:{name:fil.$search.ac}" ng-bind="a.name"></option>
+					</select>
+					<hr class="mb-4">
+				</div>
+				<div class="group mb-3">
+					<input type="text" class="fw-bold" required ng-model="entity.name" name="name">
+					<i class="fs-3 fa-sharp fa-solid {{entity.name ? 'text-primary fa-check' : 'text-danger fa-xmark'}}"></i>
+					<span class="highlight"></span>
+					<span class="bar"></span>
+					<label>Tiêu đề nội dung</label>
+				</div>
+
+				<div class="d-flex">
+					<div class="group mb-3 w-50">
+						<input type="number" step=".1" required ng-model="entity.cosPrice" name="cosPrice">
+						<i class="fs-3 fa-sharp fa-solid {{entity.cosPrice ? 'text-primary fa-check' : 'text-danger fa-xmark'}}"></i>
+						<span class="highlight"></span>
+						<span class="bar"></span>
+						<label>Số tiền đăng tải(<em>nếu có</em>)</label>
+					</div>
+
+					<div class="group mb-3 w-50">
+						<input type="number" step=".1" min="0" max="100" required ng-model="entity.proPrice" name="proPrice">
+						<i class="fs-3 fa-solid {{entity.proPrice ? 'text-primary fa-circle-dot' : 'text-secondary fa-circle-notch'}}"></i>
+						<span class="highlight"></span> <span class="bar"></span>
+						<label class="w-100 text-center">Triếu khấu nếu có(%)</label>
+					</div>
+				</div>
+
+				<div class="group mb-3">
+					<textarea class="w-100" rows="3" required
+						ng-model="entity.descript" style="text-align: justify;"></textarea>
+					<span class="highlight"></span> <span class="bar"></span> <label>Mô
+						tả thông tin</label>
+				</div>
+
+				<div class="group mb-3">
+					<input type="text" class="p-1" required ng-model="entity.images"
+						ng-list> <span class="highlight"></span> <span
+						class="bar"></span> <label>Hình ảnh</label>
+				</div>
+
+			</form>
+
+			<div class="d-lg-flex align-items-center justify-content-between">
+				<div style="min-width: 50%;">
+					<label class="form-label fs-5 w-100 text-end text-muted">Loại nội dung</label>
+						<select class="form-control" ng-model="entity.category.id">
+						<option value="{{e.id}}" ng-repeat="e in categories | orderBy:'name'">{{e.name}}</option>
+					</select>
+				</div>
+				<div class="">
+					<label class="form-label"></label>
+					<div class="d-flex justify-content-end">
+						<button class="m-1 btn btn-outline-primary"
+							ng-click="post(entity)">Thêm</button>
+						<button class="m-1 btn btn-outline-warning"
+							ng-click="put(entity)">Sửa</button>
+						<button class="m-1 btn btn-outline-danger"
+							ng-click="delete(entity.id)">Xóa</button>
+						<button class="m-1 button-85 btn-85-dark" ng-click="entity={}"
+							onclick="for(t of [,'file'])prepareImg.type=t;">Làm
+							mới</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- filter product -->
+		<div class="col-lg-12 mt-3 pt-1 border-top border-3 border-dark"
+			id="cateProduct">
+			<div class="row align-items-center">
+				<div class="col-lg-3 fs-5">Dữ liệu nội dung đăng tải</div>
+				<div class="ms-auto col-lg-2 text-center">
+					<i class="fa fa-filter"></i>&nbsp; Bộ lọc ({{(data |
+					filter:{name:fil.$search.keywords}).length}})
+				</div>
+				<div class="ms-1 col-lg-3">
+					<label class="form-label">Tìm theo tên</label> <input type="text"
+						class="form-control text-end" ng-model="fil.$search.keywords">
+				</div>
+				<div class="ms-1 col-lg-3">
+					<label class="form-label">Sắp xếp theo</label> <select
+						class="form-control" ng-model="fil.$search.sort">
+						<option class="bg-success text-center text-light"
+							value="undefined">TĂNG&nbsp;&uparrow;</option>
+						<option value="cosPrice">Giá tăng dần</option>
+						<option value="name">Tên tăng</option>
+						<option value="images.length"><u>số</u> hình ảnh tăng
+						</option>
+						<option class="bg-danger text-center text-light"
+							value="undefined">GIẢM&nbsp;&downarrow;</option>
+						<option value="-cosPrice">Giá giảm dần</option>
+						<option value="-name">Giảm tên</option>
+						<option value="-images.length"><u>số</u> hình ảnh giảm
+						</option>
+					</select>
+				</div>
+			</div>
+		</div>
+
+		<!-- SHOW data -->
+		<table
+			class="table table-striped overflow-auto mt-1 border-top border-3 border-dark"
+			id="showData">
+			<thead>
+				<tr class="text-nowrap text-center">
+					<th scope="col">IMAGE</th>
+					<th style="width: 5%" scope="col">#</th>
+					<th scope="col">GIÁ - GIẢM</th>
+					<th scope="col">TÊN</th>
+					<th style="width: 30%" scope="col">MÔ TẢ</th>
+					<th style="width: 25%" scope="col">HÌNH ẢNH</th>
+				</tr>
+			</thead>
+			<tbody class="scroll scroll-y"
+				style="display: block; overflow: auto; max-height: 68vh;">
+				<tr
+					ng-repeat="(i,e) in data | filter:{name:fil.$search.keywords} | orderBy: fil.$search.sort"
+					class="text-nowrap" ng-dblclick="read(e)">
+					<td class="scroll scroll-x"><img class="w-100"
+						ng-src="{{getImage(e.images ? e.images[0] : undefined)}}"
+						alt="{{e.images ? e.images[0] : 'default.png'}}"></td>
+					<td class="scroll scroll-x"
+						style="width: 5%; text-align: center;">{{i+1}}</td>
+					<td class="scroll scroll-x" style="text-align: end;">
+						{{e.cosPrice | number}} <span class="badge bg-warning"
+						ng-if="e.proPrice>0"
+						title="Giá sau khi giảm: {{e.cosPrice-e.cosPrice*e.proPrice/100}}">
+							&downarrow;{{e.proPrice}}% </span>
+					</td>
+					<td class="scroll scroll-x">{{e.name}}</td>
+					<td class="scroll scroll-x" style="width: 30%">{{e.descript}}</td>
+					<td class="scroll scroll-x" style="width: 25%"><span
+						ng-repeat="(j,img) in e.images"> {{j+1+' - '+img}}<br>
+					</span></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<!-- ANOTHER COMPONENTS -->
+	<div class="row">
+	
+		<!-- Partners with website Đặc Sản Miền Trung -->
+		<div th:replace="@{/components/_partners.htm}"></div>
+		
+		<!-- Infomation -->
+		<div th:replace="@{/components/_ours-info.htm}"></div>
+		
+		<!-- Footer -->
+		<footer th:replace="@{/components/_footer.htm}"></footer>
+	</div>
+	
+	<!-- SHOW MESSAGE -->
+	<div th:replace="@{/components/_message.htm}"></div>
+
+	<script>
+              const app = angular.module('app', ['ngRoute']);
+              var serverIO = 'http://localhost:8080';
+              moment.locale('vi');
+
+              app.filter('dateRelative', () => {
+                  return (date, format) => `${moment(date).format(format)} (${moment(date).fromNow()})`
+              })
+
+              app.controller('control', function($scope, $http) {
+   
+                  (async () => {
+  		        	
+  		        	  // get info
+  		        	  $http.get(getLink(serverIO,'rest/dir/documents/ourInf.json')).then(r => {
+  		            	  $scope.info = r.data
+  		              }).catch(e => console.error(e.data ? e.data.message : e));
+  		        	
+                      // get all partners
+                      $http.get(getLink(serverIO,'rest/dir/documents/partners.json')).then(r => {
+                          if(r.status==200) $scope.partners = r.data
+                      }).catch(e => console.error(e.data ? e.data.message : e));
+
+                       // get all categories
+                      $http.get(getLink(serverIO,'rest/categories')).then(r => {
+                          if(r.status==200) $scope.categories = r.data
+                      }).catch(e => console.error(e.data ? e.data.message : e));
+
+                      // get products by account
+                      $http.get(getLink(serverIO,"rest/products[[${#request.isUserInRole('OWNER')?'':'/account'}]]")).then(
+                          r => $scope.data = r.data
+                      ).catch(e => console.error(e.data ? e.data.message : e));
+                      
+                      // get accounts
+                      $http.get(getLink(serverIO,'rest/statistic/less-buyers')).then(r => {
+                          if(r.status==200) $scope.accounts = r.data
+                      }).catch(e => console.error(e.data ? e.data.message : e));
+                  })();
+                  
+                  function format(e) {
+                      if(!e.category) for(c of $scope.categories) 
+                          if(c.name.indexOf('khác')>-1) e.category = c;
+                      if(!e.category) throw "category of product does not exist!!!"
+
+                      if(e.images) for(j=i=0;i<e.images.length;i++)
+                          if(e.images[i].startsWith('blob'))
+                              e.images[i] = prepareImg.files[j++].name;
+                      return e;
+                  }
+
+                  // prepare image
+                  $scope.getImage = function(imgName) {
+                      if(imgName) return imgName.startsWith('http') || imgName.startsWith('blob') ? imgName.trim() : getLink(serverIO, 'data/images/product', imgName);
+                      return getLink(serverIO, 'data/images/product/default.png');
+                  }
+                  
+                  // set image input file
+                  $scope.setImage = (evt) => {
+                      if(!$scope.entity) $scope.entity={};
+                      $scope.entity.images = [];
+                      for(i of evt.target.files) $scope.entity.images.push(URL.createObjectURL(i));
+                  }
+
+                  // get comments
+                  $scope.read = (e) => {
+                      $scope.entity = angular.copy(e);
+                      document.getElementById('detailProduct').scrollIntoView();
+                  };
+
+                  $scope.post = (e) => {
+                      e.id = Math.round(Math.random()*-1000);
+                      let i = getIndex('id',e.id,$scope.data);
+                      if(i < 0) $http.post(getLink(serverIO,'rest/products'), format(e)).then(r => {
+                          if (prepareImg.files.length > 0) $scope.pushFile(e);
+                          let name = r.data.name;
+                          $scope.entity = r.data;
+                          $scope.data.unshift(angular.copy(r.data));
+                          showToast(`<span class="text-success">Thêm nội dung hoàn tất</span>`, `Đã thêm nội dung: ${name}`)
+                      }).catch(err => showToast(`<span class="text-danger">Thêm nội dung thất bại</span>`, err.data ? err.data.message : err))
+                      else showToast(`<span class="text-warning">Thêm nội dung thất bại</span>`, `nội dung có id "${e.id} <u>đã</u> tồn tại"`)
+                  }
+
+                  $scope.put = (e) => {
+                      let i = getIndex('id',e.id,$scope.data);
+                      if(i > -1) $http.put(getLink(serverIO,'rest/products'), format(e)).then(r => {
+                          if (prepareImg.files.length > 0) $scope.pushFile(e);
+                              let name = r.data.name;
+                              $scope.entity = r.data;
+                              $scope.data[i] = angular.copy(r.data);
+                              showToast(`<span class="text-success">Cập nhật nội dung hoàn tất</span>`, `Đã cập nhật nội dung: ${name}`)
+                          }).catch(err => showToast(`<span class="text-danger">Cập nhật nội dung thất bại</span>`, err.data ? err.data.message : err))
+                      else showToast(`<span class="text-warning">Sửa nội dung thất bại</span>`, `nội dung có id "${e.id}" <u>không</u> tồn tại"`)
+                  }
+
+                  $scope.delete = (k) => {
+                      let i = getIndex('id',k,$scope.data);
+                      if(i > -1) $http.delete(getLink(serverIO,`rest/products/${k}`)).then(r => {
+                          let name = angular.copy($scope.data[i].name);
+                          $scope.data.splice(i,1);
+                          let size = $scope.data.length-1;
+                          if(size > -1) $scope.read($scope.data[i>=size ? size : i])
+                          showToast(`<span class="text-success">Xóa nội dung hoàn tất</span>`, `Đã xóa nội dung: ${name}`)
+                      }).catch(err => showToast(`<span class="text-danger">Xóa nội dung thất bại</span>`, err.data ? err.data.message : err));
+                      else showToast(`<span class="text-warning">Xóa nội dung thất bại</span>`, `nội dung có id "${e.id}" <u>không</u> tồn tại"`)
+                  }
+              
+                  $scope.pushFile = function (entity) {
+                      var formFiles = new FormData(); // <form></form>
+                      for (let f of prepareImg.files) formFiles.append('files', f);
+
+                      // post to save file
+                      $http.post(getLink(serverIO, 'rest/dir/images/product'), formFiles, {
+                          TransformRequest: angular.identity,
+                          headers: { 'content-Type': undefined }
+                      }).then(resp => {
+                          for(t of [,'file']) prepareImg.type = t
+                      }).catch((err) => console.error(err.data ? err.data.message : err));
+                  }
+              });
+          </script>
+</main>
+	
+</body>
+</html>
